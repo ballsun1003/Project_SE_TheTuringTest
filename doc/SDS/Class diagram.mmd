@@ -35,11 +35,10 @@ classDiagram
     +isDeleted: boolean
   }
   class Evaluation {
-    +id: string
+    +evalid: string
     +postId: string
     +userId: string
     +type: enum
-    +createdAt: datetime
   }
   class Noti {
     +id: string
@@ -59,7 +58,7 @@ classDiagram
 
   %% ====== Components ======
   class SearchBox {
-    +criteria: string
+    +criteria: enum
     +keyword: string
     +onSubmit(criteria: enum): Post[]
   }
@@ -150,7 +149,8 @@ classDiagram
     +delete(commentId: string, requestorId: string): boolean
   }
   class EvalService {
-    +evaluate(postId: string, userId: string, type: string): Post
+    +evaluate(postId: string, userId: string, type: enum): Evaluation
+    +delete(evalid: string): void
     +getPopularPosts(criteria: any): Post[]
   }
   class NotiService {
