@@ -25,14 +25,12 @@ classDiagram
     +isDeleted: boolean
   }
   class Comment {
-    +id: string
-    +postId: string
-    +authorId: string
-    +content: string
-    +prompt: string
+    -comment_id: uuid 
+    -postId: uuid
+    -authorId: uuid
+    -content: string
     +createdAt: datetime
     +updatedAt: datetime
-    +isDeleted: boolean
   }
   class Evaluation {
     +id: string
@@ -145,9 +143,9 @@ classDiagram
     +increaseView(postId: string): void
   }
   class CommentService {
-    +createFromPrompt(postId: string, authorId: string, prompt: string): Comment
-    +editWithPrompt(commentId: string, editorId: string, prompt: string): Comment
-    +delete(commentId: string, requestorId: string): boolean
+    +createFromPrompt(postId: uuid, authorId: uuid, prompt: string): Comment
+    +editWithPrompt(commentId: uuid, editorId: uuid, prompt: string): Comment
+    +delete(commentId: uuid, requestorId: uuid): boolean
   }
   class EvalService {
     +evaluate(postId: string, userId: string, type: string): Post
@@ -195,3 +193,4 @@ classDiagram
   AUTH ..> DB
   EvalService ..> NotiService : onLike/Dislike
   CommentService ..> NotiService : onReply
+
