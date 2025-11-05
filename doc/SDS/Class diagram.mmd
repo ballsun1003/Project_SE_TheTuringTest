@@ -56,9 +56,7 @@ classDiagram
 
   %% ====== Components ======
   class SearchBox {
-    +criteria: enum
-    +keyword: string
-    +onSubmit(criteria: enum): Post[]
+    +onSubmit(criteria: enum, keyword: string): Post[]
   }
   class PostList {
     +items: Post[]
@@ -149,7 +147,6 @@ classDiagram
   class EvalService {
     +evaluate(postId: string, userId: string, type: enum): Evaluation
     +delete(evalid: string): void
-    +getPopularPosts(criteria: any): Post[]
   }
   class NotiService {
     +send(toUserId: string, title: string, body: string): boolean
