@@ -38,7 +38,7 @@ classDiagram
     +id: string
     +postId: string
     +userId: string
-    +type: string
+    +type: enum
     +createdAt: datetime
   }
   class Noti {
@@ -61,7 +61,7 @@ classDiagram
   class SearchBox {
     +criteria: string
     +keyword: string
-    +onSubmit(): void
+    +onSubmit(criteria: enum): Post[]
   }
   class PostList {
     +items: Post[]
@@ -152,10 +152,6 @@ classDiagram
   class EvalService {
     +evaluate(postId: string, userId: string, type: string): Post
     +getPopularPosts(criteria: any): Post[]
-  }
-  class SearchService {
-    +searchPosts(criteria: any): Post[]
-    +searchUsers(keyword: string): User[]
   }
   class NotiService {
     +send(toUserId: string, title: string, body: string): boolean
