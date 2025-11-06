@@ -3,48 +3,48 @@ classDiagram
 
   %% ====== Container (Data Only) ======
   class User {
-    +id: string
-    +email: string
-    +nickname: string
-    +role: string
+    +id: String
+    +email: String
+    +nickname: String
+    +permission: enum
     +isActive: boolean
-    +createdAt: datetime
-    +lastLoginAt: datetime
+    +createdAt: Date
+    +lastLoginAt: Date
   }
   class Post {
-    +id: string
-    +title: string
-    +content: string
-    +authorId: string
-    +modelName: string
+    +id: String
+    +title: String
+    +content: String
+    +authorId: String
+    +modelName: String
     +likeCount: int
     +dislikeCount: int
     +viewCount: int
-    +createdAt: datetime
-    +updatedAt: datetime
+    +createdAt: Date
+    +updatedAt: Date
     +isDeleted: boolean
   }
   class Comment {
-    +id: string
-    +postId: string
-    +authorId: string
-    +content: string
-    +createdAt: datetime
-    +updatedAt: datetime
+    +id: String
+    +postId: String
+    +authorId: String
+    +content: String
+    +createdAt: Date
+    +updatedAt: Date
   }
   class Evaluation {
-    +evalid: string
-    +postId: string
-    +userId: string
+    +evalid: String
+    +postId: String
+    +userId: String
     +type: enum
   }
   class Noti {
-    +id: string
-    +userId: string
-    +title: string
-    +body: string
+    +id: String
+    +userId: String
+    +title: String
+    +body: String
     +isRead: boolean
-    +createdAt: datetime
+    +createdAt: Date
   }
 
   User "1" --> "many" Post : author
@@ -56,17 +56,11 @@ classDiagram
 
   %% ====== Components ======
   class SearchBox {
-    +onSubmit(criteria: enum, keyword: string): Post[]
+    +onSubmit(criteria: enum, keyword: String): Post[]
   }
   class PostList {
     +items: Post[]
     +render(): void
-  }
-  class CAPTCHA {
-    +siteKey: string
-    +token: string
-    +render(): void
-    +verify(): boolean
   }
 
   %% ====== Screens ======
@@ -74,87 +68,87 @@ classDiagram
     +render(): void
   }
   class LoginScreen {
-    +email: string
-    +password: string
-    +submit(): void
+    +email: String
+    +password: String
+    +submit(id: String, password: String): void
   }
   class SignUpScreen {
-    +email: string
-    +password: string
-    +nickname: string
-    +submit(): void
+    +email: String
+    +password: String
+    +confirmPassword: String
+    +nickname: String
+    +submit(email: String, password: String, confirmPassword: String, nickname: String): void
   }
   class BoardScreen {
     +render(): void
     +applyFilter(): void
   }
   class PostScreen {
-    +postId: string
+    +postId: String
     +like(): void
     +dislike(): void
-    +addComment(prompt: string): void
+    +addComment(prompt: String): void
   }
   class PostCreateScreen {
-    +title: string
-    +prompt: string
+    +title: String
+    +prompt: String
     +submit(): void
   }
   class UserProfileScreen {
-    +loadMyInfo(): void
+    +showMyComment(): void
+    +showMyPost(): void
+    +showMyLoginHistory(): void
     +updateProfile(): void
   }
   class NotiListScreen {
     +load(): void
-    +markAsRead(notiId: string): void
+    +markAsRead(notiId: String): void
   }
 
   %% ====== Services ======
   class AI {
-    +generateText(prompt: string): string
-    +editText(base: string, prompt: string): string
+    +generateText(prompt: String): String
+    +editText(base: String, prompt: String): String
   }
   class DB {
-    +select(resource: string, criteria: any): any
-    +insert(resource: string, data: any): any
-    +update(resource: string, id: string, patch: any): any
-    +delete(resource: string, id: string): any
+    +select(resource: String, criteria: any): any
+    +insert(resource: String, data: any): any
+    +update(resource: String, id: String, patch: any): any
+    +delete(resource: String, id: String): any
   }
   class AUTH {
-    +signUp(email: string, password: string, nickname: string): any
-    +signIn(email: string, password: string): any
+    +signUp(email: String, password: String, nickname: String): User
+    +signIn(email: String, password: String): String
     +signOut(): void
-    +reAuth(): boolean
-    +issueSession(): string
-    +verifyCAPTCHA(token: string): boolean
-    +verifyEmail(token: string): boolean
-    +me(): User
-    +updateProfile(patch: any): User
-    +recordLoginAttempt(ip: string, ua: string, success: boolean): void
+    +reAuth(password: String): boolean
+    +verifyCAPTCHA(token: String): boolean
+    +verifyEmail(token: String, email: String): boolean
+    +updateProfile(patch: User): void
   }
   class PostService {
-    +createFromPrompt(authorId: string, title: string, prompt: string): Post
-    +editWithPrompt(postId: string, editorId: string, prompt: string): Post
-    +delete(postId: string, requestorId: string): boolean
-    +getById(id: string): Post
+    +createFromPrompt(authorId: String, title: String, prompt: String): Post
+    +editWithPrompt(postId: String, editorId: String, prompt: String): Post
+    +delete(postId: String, requestorId: String): boolean
+    +getById(id: String): Post
     +list(filter: any): Post[]
-    +increaseView(postId: string): void
+    +increaseView(postId: String): void
   }
   class CommentService {
-    +createFromPrompt(postId: string, authorId: string, prompt: string): Comment
-    +editWithPrompt(commentId: string, editorId: string, prompt: string): Comment
-    +delete(commentId: string, requestorId: string): boolean
+    +createFromPrompt(postId: String, authorId: String, prompt: String): Comment
+    +editWithPrompt(commentId: String, editorId: String, prompt: String): Comment
+    +delete(commentId: String, requestorId: String): boolean
   }
   class EvalService {
-    +evaluate(postId: string, userId: string, type: enum): Evaluation
-    +delete(evalid: string): void
+    +evaluate(postId: String, userId: String, type: enum): Evaluation
+    +delete(evalid: String): void
   }
   class NotiService {
-    +send(toUserId: string, title: string, body: string): boolean
-    +markAsRead(notiId: string): boolean
-    +listForUser(userId: string): Noti[]
-    +detectTriggers(event: string): void
-    +deleteNoti(notiId: string): boolean
-    +subscribe(userId: string): any
+    +send(toUserId: String, title: String, body: String): boolean
+    +markAsRead(notiId: String): boolean
+    +listForUser(userId: String): Noti[]
+    +detectTriggers(event: String): void
+    +deleteNoti(notiId: String): boolean
+    +subscribe(userId: String): any
   }
 
   %% Dependencies (UI -> Services)
