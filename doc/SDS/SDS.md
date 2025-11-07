@@ -1416,9 +1416,9 @@ References - 허태규
 
 ## 5. State machine diagram
 이 장은 시스템 또는 주요 객체의 상태 변화를 보여주는 State machine diagram을 제공한다. 사용자 인증 상태 변화를 중심으로 설계하였다.  
-![State machine (p.69)](img/StateMachine)
+![State machine (p.69)](img/StateMachine.png)
 이 도표는 클라이언트(웹 애플리케이션) 의 상태 전이를 기술한다. 본 도표에서는 화면(뷰) 중심으로 상태를 정의 하였다. 이는 “사용자에게 무엇을 보여주고 있는지”를 기준으로 상태를 정의하며, 화면 단위 컴포지트 상태와 네트워크 요청 상태를 분리해 설명한다.  
-![State machine (p.69)](img/AuthStateMachine)
+![State machine (p.69)](img/AuthStateMachine.png)
 위 다이어그램은 서버에서 인증, 계정에 관련된 처리과정을 나타낸다. 클라이언트에서 발생한 요청은 여기서 처리되고, 그 결과 이벤트(성공/실패)가 다시 클라이언트 SMD 전이 조건으로 반영된다.  
 
 ---
@@ -1511,4 +1511,5 @@ https://dev.to/yasmine_ddec94f4d4/understanding-the-layered-architecture-pattern
 
 [common webarchitecture explain]  
 https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-applic ation-architectures
+
 
