@@ -1387,30 +1387,152 @@ References - 허태규
 ## 4. Sequence diagram
 이 장은 주요 Use case의 실행 흐름을 보여주는 Sequence diagram을 제공한다. 각 다이어그램은 특정 Use case description의 시나리오를 기반으로 객체 간의 상호작용을 시간 순서대로 묘사한다.
 
-- Use case #1 : Post Search — ![p.45](img/SD1.png)  
-- Use case #2 : User Search — ![p.46](img/SD2.png)  
-- Use case #3 : Post Evaluation — ![p.47](img/SD3.png)  
-- Use case #4 : 알림 설정 — ![p.48](img/SD4.png)  
-- Use case #5 : 알림 목록 보기 — ![p.49](img/SD5.png)  
-- Use case #6 : 알림 전송 — ![p.50](img/SD6.png)  
-- Use case #7 : 관리자 로그인 — ![p.51](img/SD7.png)  
-- Use case #8 : 사용자 정보 조회 — ![p.52](img/SD8.png)  
-- Use case #9 : 사용자 정보 수정 — ![p.53](img/SD9.png)  
-- Use case #10 : 게시글 작성 — ![p.54](img/SD10.png)  
-- Use case #11 : 게시글 수정 — ![p.55](img/SD11.png)  
-- Use case #12 : 게시글 삭제 — ![p.56](img/SD12.png)  
-- Use case #13 : 게시글 목록 — ![p.57](img/SD13.png)  
-- Use case #14 : 게시글 조회 — ![p.58](img/SD14.png)  
-- Use case #15 : 회원가입 — ![p.59](img/SD15.png)  
-- Use case #16 : 로그인 — ![p.60](img/SD16.png)  
-- Use case #17 : 로그아웃 — ![p.61](img/SD17.png)  
-- Use case #18 : 내 정보 관리 — ![p.62](img/SD18.png)  
-- Use case #19 : 이메일 인증 — ![p.63](img/SD19.png)  
-- Use case #20 : CAPTCHA — ![p.64](img/SD20.png)  
-- Use case #21 : 약관 조회 — ![p.65](img/SD21.png)  
-- Use case #22 : Check Text-box — ![p.66](img/SD22.png)  
-- Use case #23 : Update Comment — ![p.67](img/SD23.png)  
-- Use case #24 : Delete Comment — ![p.68](img/SD24.png)
+- Use case #1 : Post Search —
+![p.45](img/SD1.png)
+사용자가 검색창에 분류(제목/내용/글쓴이/댓글)와 키워드를 입력해 SearchBox.onSubmit을 호출합니다.
+SearchBox는 PostService.list로 목록을 요청하고, PostService는 DB.select로 조건에 맞는 게시글을 가져와 다시 SearchBox로 돌려줍니다.
+“다음”을 누르면 같은 흐름이 반복됩니다.
+
+---
+
+- Use case #2 : User Search —
+![p.46](img/SD2.png)
+글쓴이 이름(또는 ID)로 검색하면 SearchBox.onSubmit이 실행되고, PostService.list가 글과 댓글을 각각 DB.select로 조회해 결과를 합쳐 보여줍니다.
+
+---
+
+- Use case #3 : Post Evaluation —
+![p.47](img/SD3.png)
+사용자가 PostScreen.like/dislike를 누르면 EvalService.evaluate가 평가를 저장합니다.
+이후 NotiService.detectTrigger가 인기글 조건 등을 감지하면 NotiService.sendNoti로 작성자에게 알림을 전송합니다.
+
+---
+
+- Use case #4 : 알림 설정 —
+![p.48](img/SD4.png)
+사용자가 마이페이지에서 알림 on/off 같은 프로필 항목을 바꾸면 UserProfileScreen.updateMyProfile가 Auth.reAuth로 재인증을 거친 뒤 Auth.updateProfile을 호출, 설정을 DB.update로 저장합니다.
+
+---
+
+- Use case #5 : 알림 목록 보기 —
+![p.49](img/SD5.png)
+알림 아이콘을 누르면 NotiList.getNotis가 DB.select로 알림을 불러와 보여줍니다.
+사용자가 개별 알림을 열면 알림을 읽음으로 업데이트합니다.
+
+---
+
+- Use case #6 : 알림 전송 —
+![p.50](img/SD6.png)
+시스템이 평가 이벤트를 감지하면(detectTrigger) 알림을 DB.insert로 저장하고 sendNoti로 발송합니다.
+
+---
+
+- Use case #7 : 관리자 로그인 —
+![p.51](img/SD7.png)
+관리자가 LoginScreen.submit으로 로그인하면 Auth.verifyCAPTCHA 후 Auth.signIn이 DB.select로 계정과 권한을 확인합니다.
+
+---
+
+- Use case #8 : 사용자 정보 조회 —
+![p.52](img/SD8.png)
+관리자가 재인증 후 DB.select로 특정 사용자의 정보를 조회합니다.
+
+---
+
+- Use case #9 : 사용자 정보 수정 —
+![p.53](img/SD9.png)
+관리자가 Auth.updateProfile로 사용자 정보를 수정하고, DB.update에 반영합니다.
+
+---
+
+- Use case #10 : 게시글 작성 —
+![p.54](img/SD10.png)
+작성 화면에서 submit 시 AI가 본문을 generateText로 생성하고, PostService.createdFromPrompt가 게시글을 DB.insert로 저장합니다.
+
+---
+
+- Use case #11 : 게시글 수정 —
+![p.55](img/SD11.png)
+상세 화면에서 수정 프롬프트를 주면 PostService.editWithPrompt가 AI.editText로 본문을 바꾸고 DB.update로 저장합니다.
+
+---
+
+- Use case #12 : 게시글 삭제 —
+![p.56](img/SD12.png)
+삭제 요청 시 PostService.delete가 권한을 확인한 뒤 DB.delete를 수행합니다.
+
+---
+
+- Use case #13 : 게시글 목록 —
+![p.57](img/SD13.png)
+게시판 진입 시 BoardScreen.render가 PostService.list로 최신순 목록을 DB.select해 보여줍니다.
+
+---
+
+- Use case #14 : 게시글 조회 —
+![p.58](img/SD14.png)
+게시글을 클릭하면 PostService.getById가 상세를 가져오고, PostService.increaseView 의미의 DB.update로 조회수를 올립니다.
+
+---
+
+- Use case #15 : 회원가입 —
+![p.59](img/SD15.png)
+회원가입 제출 후 Auth.verifyCAPTCHA와 Auth.signUp으로 저장하고, Auth.verifyEmail로 활성화합니다.
+
+---
+
+- Use case #16 : 로그인 —
+![p.60](img/SD16.png)
+LoginScreen.submit→Auth.verifyCAPTCHA→Auth.signIn 순이며, 로그인 성공 기록은 DB.insert에 저장합니다.
+
+---
+
+- Use case #17 : 로그아웃 —
+![p.61](img/SD17.png)
+사용자가 Auth.signOut으로 세션/토큰을 무효화합니다.
+
+---
+
+- Use case #18 : 내 정보 관리 —
+![p.62](img/SD18.png)
+내 정보 화면 진입 시 Auth.reAuth 후, 프로필 변경(Auth.updateProfile), 내가 쓴 글(PostService.list), 댓글/로그인 이력(DB.select)을 옵션으로 수행합니다.
+
+---
+
+- Use case #19 : 이메일 인증 —
+![p.63](img/SD19.png)
+인증 코드 입력 시 Auth.verifyEmail이 성공하면 계정을 활성화(DB.update)합니다.
+
+---
+
+- Use case #20 : CAPTCHA —
+![p.64](img/SD20.png)
+로그인/회원가입 등에서 사람임을 확인하기 위해 Auth.verifyCAPTCHA를 호출합니다.
+
+---
+
+- Use case #21 : 약관 조회 —
+![p.65](img/SD21.png)
+시스템은 약관/정책 내용을 DB.select로 불러와 사용자에게 표시합니다.
+
+---
+
+- Use case #22 : Check Text-box —
+![p.66](img/SD22.png)
+PostScreen.addComment 흐름에서 우선 Comment.set으로 길이를 검증합니다.
+적합하면 CommentService.createFromPrompt가 AI.generateText로 문장을 만들고 DB.insert로 저장합니다.
+
+---
+
+- Use case #23 : Update Comment —
+![p.67](img/SD23.png)
+수정 프롬프트를 받아 CommentService.editWithPrompt가 AI.editText로 본문을 수정하고 DB.update로 반영합니다.
+
+---
+
+- Use case #24 : Delete Comment —
+![p.68](img/SD24.png)
+삭제 요청을 받으면 CommentService.delete가 권한을 확인하고 DB.delete로 댓글을 제거합니다.
 
 ---
 
@@ -1511,5 +1633,6 @@ https://dev.to/yasmine_ddec94f4d4/understanding-the-layered-architecture-pattern
 
 [common webarchitecture explain]  
 https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-applic ation-architectures
+
 
 
