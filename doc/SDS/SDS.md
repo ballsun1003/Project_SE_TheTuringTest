@@ -423,9 +423,232 @@ References - 허태규
 
 ---
 
+### Use case #10 : 게시글 작성
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자가 입력한 프롬프트를 기반으로 AI가 본문을 자동 생성하여 게시글을 등록하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 강승훈 |
+| Last Update | 2025. 10. 29. |
+| Status | Analysis  |
+| Primary Actor | User (Secondary Actor: AI generator |
+| Preconditions | 사용자는 로그인 상태여야 하며 게시글 작성 페이지에 접근해야 한다 |
+| Trigger | 사용자가 제목과 프롬프트를 입력하고 “게시글 생성” 버튼을 클릭했을 때 |
+| Success Post Condition | 게시글이 성공적으로 생성되어 목록에 등록된다. |
+| Failed Post Condition | 입력이 누락되었거나 AI 본문 생성에 실패한 경우 게시글이 등록되지 않는다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 게시글 작성 페이지에 접근한다. |
+| 1 | 사용자는 제목과 프롬프트를 입력하고 “게시글 생성” 버튼을 클릭한다. |
+| 2 | AI가 프롬프트를 기반으로 본문 내용을 자동 생성한다. |
+| 3 | 시스템은 제목, 작성자, 생성된 본문을 저장한다. |
+| 4 | 게시글 등록 후 사용자에게 게시글 상세 페이지로 리다이렉트된다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 2 | 2a. AI 본문 생성 실패 | 2a1. 오류 메시지를 출력하고 사용자가 다시 시도할 수 있도록 한다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 3 seconds |
+| Frequency | 사용자당 일 1회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025.11.07. |
+
+---
+
+### Use case #11 : 게시글 수정
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 작성자가 기존 게시글을 프롬프트를 통해 수정 요청하면 AI가 내용을 자동 수정하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 강승훈 |
+| Last Update | 2025. 10. 29. |
+| Status | Analysis  |
+| Primary Actor | User (Secondary Actors: AI generator) |
+| Preconditions | 사용자는 해당 게시글의 작성자이며 로그인 상태여야 한다. |
+| Trigger | 사용자가 수정 페이지에서 수정 프롬프트를 입력하고 “수정”버튼을 클릭했을 때 |
+| Success Post Condition | 게시글이 수정되어 갱신된 내용이 저장된다. |
+| Failed Post Condition | 수정 권한이 없거나 AI 수정 실패 시 게시글이 변경되지 않는다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 본인이 작성한 게시글 상세 페이지에 접근한다. |
+| 1 | 사용자는 수정 버튼을 클릭하고 프롬프트를 입력한다. |
+| 2 | AI가 프롬프트를 기반으로 기존 내용을 자동 수정한다. |
+| 3 | 수정된 내용이 저장되고 게시글 상세 페이지로 리다이렉트된다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 2 | 2a. AI 수정 실패 시 | 2a1. 기존 게시글은 유지되며 오류 메시지를 출력한다. |
+| 2 | 2b. 작성자가 아닐 경우 | 2b1. 수정 버튼이 활성화 되지 않아 클릭할 수 없다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 3 seconds |
+| Frequency | 사용자당 일 1회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025.11.07. |
+
+---
+
+### Use case #12 : 게시글 삭제
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 작성자 또는 관리자가 게시글을 삭제하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 강승훈 |
+| Last Update | 2025. 10. 27. |
+| Status | Analysis  |
+| Primary Actor | User, Admin |
+| Preconditions | 사용자는 로그인 상태이며 해당 게시글의 작성자이거나 관리자여야 한다. |
+| Trigger | 사용자가 “삭제” 버튼을 클릭했을 때 |
+| Success Post Condition | 게시글이 삭제되고 목록에서 제거된다. |
+| Failed Post Condition | 삭제 권한이 없거나 오류 발생 시 삭제되지 않는다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 게시글 상세 페이지에 접근한다. |
+| 1 | 사용자가 “삭제” 버튼을 클릭한다. |
+| 2 | 시스템은 권한을 검증하고, 권한이 유효할 경우 게시글을 삭제한다. |
+| 3 | 삭제 완료 후 게시글 목록 페이지로 리다이렉트된다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 1 | 1a. 사용자가 작성자가 아니거나 관리자가 아닐 경우 | 1a1.삭제 버튼이 비활성화 되어 클릭할 수 없다 / 1a2.Use case는 종료된다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 1 seconds |
+| Frequency | 사용자당 월 1회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025.11.07. |
+
+---
+
+### Use case #13 : 게시글 목록
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 등록된 게시글을 최신순으로 정렬하여 목록 형태로 보여주는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | System level |
+| Author | 강승훈 |
+| Last Update | 2025. 10. 27. |
+| Status | Analysis  |
+| Primary Actor | User |
+| Preconditions | 사용자는 로그인 상태여야 하며 게시판 페이지에 접근해야 한다. |
+| Trigger | 사용자가 게시판 페이지를 열었을 때 |
+| Success Post Condition | 게시글 목록이 정상적으로 표시된다. |
+| Failed Post Condition | 게시글 목록이 표시되지 않는다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 게시판 페이지에 접근한다. |
+| 1 | 시스템은 저장된 게시글 목록을 최신순으로 불러온다 |
+| 2 | 게시글 제목, 작성자, 작성일, 좋아요 수 등을 목록에 표시한다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 1 seconds |
+| Frequency | 사용자당 일 5회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025.11.07. |
+
+---
+
+### Use case #14 : 게시글 조회
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자가 목록에서 선택된 게시글의 상세 내용을 확인하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 강승훈 |
+| Last Update | 2025. 10. 27. |
+| Status | Analysis  |
+| Primary Actor | User |
+| Preconditions | 게시글이 존재해야 하며, 사용자는 목록 페이지에 접근 중이어야 한다. |
+| Trigger | 사용자가 목록에서 게시글을 클릭했을 때 |
+| Success Post Condition | 게시글의 제목, 본문, 작성자, 작성일 등이 상세히 표시된다. |
+| Failed Post Condition | 게시글이 표시되지 않는다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 게시글 목록 페이지에 접근한다. |
+| 1 | 사용자가 특정 게시글을 클릭한다. |
+| 2 | 시스템은 해당 게시글의 상세 정보를 불러와 화면에 표시한다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 2 seconds |
+| Frequency | 사용자당 일 20회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025.11.07. |
+
+---
+
 ## 3. Class diagram
 이번 장은 시스템의 주요 클래스들과 그 관계를 보여주는 Class diagram을 제공한다. 전체 시스템 구조를 파악하기 위해 주요 도메인 및 서비스 클래스를 중심으로 설계하였다.  
 ![Class diagram (p.34)](img/CD.png)
+
+---
+
+### Post
+**Class Description**: 게시글 본문·제목·작성자·AI모델명·좋아요/싫어요/조회수·시간·삭제 여부 등 메타데이터 관리
+
+**Attributes**
+| Name | Type | Visibility | Description |
+|---|---|---|---|
+| id | string | private | 게시글 ID |
+| title | string | private | 제목 |
+| content | string | private | 본문 |
+| authorId | string | private | 본문 |
+| modelName | string | private | 본문 생성에 사용된 AI 모델명 |
+| likeCount | int | private | 좋아요 수 |
+| dislikeCount | int | private | 싫어요 수 |
+| viewCount | int | private | 조회수 |
+| createdAt | Date | private | 생성 시각 |
+| updatedAt | Date | private | 수정 시각 |
+| isDeleted | boolean | private | 논리 삭제 여부 |
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| getId | none | string | 식별 |
+| getTitle | none | string | 제목 조회 |
+| setTitle | title: string | void | 제목 변경 |
+| getContent | none | string  | 본문 조회 |
+| setContent | content: string | void | 본문 변경 |
+| getAuthorId | none | string  | 작성자 조회 |
+| getModelName | none | string  | 모델명 조회 |
+| setModelName | name: string | void | 모델명 변경 |
+| getLikeCount | none | int | 좋아요 수 조회 |
+| getDislikeCount | none | int | 싫어요 수 조회 |
+| like | none | void | 좋아요 1 증가 |
+| dislike | none | void | 싫어요 1 증가 |
+| incrementView | none | void | 조회수 1 증가 |
+| softDelete | none | void | 논리 삭제 처리 |
 
 ---
 
@@ -474,9 +697,46 @@ References - 허태규
 | isRead | content: string | boolean | 읽음 여부 조회 |
 | setUpdatedAt | d: Date | void | 읽음 처리 |
 
+**AI — Class Description**: 프롬프트 기반 본문 생성/수정
+
+**Attributes**
+| Name | Type | Visibility | Description |
+|---|---|---|---|
+| modelName | string | private | 사용하는 AI 모델명 |
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| generateText | prompt: string | string | 프롬프트로 본문 생성 |
+| editText | base: string, prompt: string | string | 기존 텍스트를 프롬프트대로 수정 |
+
 ---
 
-### EvalService
+### DB / Auth
+**DB — Class Description**: 게시글·사용자 등 리소스에 대한 CRUD를 추상화
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| select | resource: string, criteria: any | any | 조건 조회 |
+| insert | resource: string, data: any | any | 삽입 |
+| update | resource: string, id: string, patch: any | any | 부분 수정 |
+| delete | resource: string, id: string | any | 삭제 |
+
+---
+
+### PostService / EvalService
+**PostService — Class Description**: 게시글 CRUD + AI/DB 조율
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| createFromPrompt | authorId: string, title: string, prompt: string | Post | AI로 본문 생성 후 저장 |
+| editWithPrompt | postId: string, editorId: string, prompt: string | Post | AI로 본문 수정 |
+| delete | postId: string, requestorId: string | boolean | 논리 삭제 처리 |
+| getById | id: string | Post | 단건 조회 |
+| list | filter: any | Post[] | 목록 조회(정렬/검색 포함) |
+| increaseView | postId: string | void | 조회수 +1 |
 
 **EvalService — Class Description**: 좋아요/싫어요 생성·삭제 + 알림 연동
 
@@ -488,7 +748,7 @@ References - 허태규
 
 ---
 
-### NotiService
+### NotiService / BoardScreen / PostList
 **NotiService — Class Description**: 알림 전송/수신/읽음처리/삭제
 
 **Operations**
@@ -500,9 +760,57 @@ References - 허태규
 | markAsRead | noti: Noti | boolean | 읽음 표시 |
 | deleteNoti | noti: Noti | Noti | 알림 삭제 |
 
+**BoardScreen — Class Description**: 게시판 메인 화면. 목록 표시/필터 적용
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| render | none | void | 메인 화면 렌더 |
+| applyFilter | none | void | 필터 적용 및 목록 갱신 |
+
+**PostList — Class Description**: 프롬프트 기반 본문 생성/수정
+
+**Attributes**
+| Name | Type | Visibility | Description |
+|---|---|---|---|
+| noti: items | Post[] | private | 렌더 대상 게시글 목록 |
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| getItems | none | Post[] | 목록 조회 |
+| setItems | items: Post[] | void | 목록 설정 |
+| render | none | void | 목록 렌더링 |
+
 ---
 
-### SearchBox / LoginScreen
+### PostScreen / PostCreateScreen / SearchBox / LoginScreen
+**PostScreen — Class Description**: 게시글 상세 페이지. 좋아요/싫어요/댓글 추가
+
+**Attributes**
+| Name | Type | Visibility | Description |
+|---|---|---|---|
+| postId | string | public | 현재 게시글 ID |
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| like | none | void | 좋아요 추가 |
+| dislike | none | void | 싫어요 추가 |
+| addComment | prompt: string | void | AI 댓글 생성/추가 |
+
+**PostCreateScreen — Class Description**: 제목/프롬프트 입력 → AI 본문 생성 → 게시글 등록
+
+**Attributes**
+| Name | Type | Visibility | Description |
+|---|---|---|---|
+| title | string | public | 제목 입력값 |
+| prompt | string | public | 프롬프트 입력값 |
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| submit | none | void | 입력값 검증 → 생성 요청 |
 
 **SearchBox — Class Description**: 분류+키워드 입력 → 게시글 검색 결과 반환
 
