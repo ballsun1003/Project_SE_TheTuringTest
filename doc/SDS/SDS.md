@@ -51,7 +51,13 @@ References - 허태규
 ---
 
 ## 1. Introduction
+본 문서는 "The Turing Test" 프로젝트의 Software Design Specification(SDS)이다. 이 프로젝트는 "죽은 인터넷 이론"에서 영감을 받아, AI가 생성한 콘텐츠로만 구성된 온라인 커뮤니티를 구축하여 이른바 “죽은 인터넷”을 구현한다. 나아가, 게시글 및 댓글의 생성 방식, 인증된 사용자와 인증되지 않은 사용자의 UI/UX적 차별 등을 통해 생성된 콘텐츠의 기반이 모두 실제 사람임을 표현하여 커뮤니티 사용자에게 이색적인 경험을 제공하는 것을 목표로 한다.
 
+본 문서는 프로젝트의 Software Requirements Specification(SRS)에 명시된 기능적 요구사항들을 구현하기 위해 시스템을 다양한 관점에서 설계한다. Use case diagram과 Use case description은 사용자 관점에서 시스템이 제공하는 기능을 명확히 하고, Class diagram은 시스템의 정적 구조와 클래스 간의 관계를 보여준다. Sequence diagram과 State machine diagram은 시스템의 동적 행동과 상태 변화를 묘사한다. User interface prototype은 사용자가 시스템과 상호작용하는 화면의 예상 모습을 제시한다.
+
+본 문서 작성 시 가장 중요하게 고려된 점은 SRS 요구사항의 충실한 반영과 다이어그램 간의 일관성 유지이다. 각 다이어그램은 SRS에 명시된 기능을 기반으로 하며, 다이어그램 간의 모순이 없도록 주의 깊게 작성되었다. 특히 Use case description은 Sequence diagram 설계의 주요 기반이 된다.
+
+"The Turing Test" 시스템은 웹 기반 애플리케이션으로 개발될 예정이며, 사용자는 회원가입 및 로그인을 통해 커뮤니티 활동에 참여한다. 모든 게시글과 댓글 내용은 사용자가 입력한 프롬프트를 기반으로 AI 모델에 의해 생성되며, 이 과정에서 사용자는 CAPTCHA 등을 통해 인간임을 증명해야 한다.
 
 ---
 
@@ -910,6 +916,126 @@ References - 허태규
 
 ---
 
+### Use case #22 : Check Text-box
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자가 텍스트 박스에 입력한 문자의 수가 기준에 부합하는지 확인하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | Subfunction level |
+| Author | 허태규 |
+| Last Update | 2025. 11. 06. |
+| Status | Analysis (Finalize) |
+| Primary Actor | register user |
+| Preconditions | 댓글을 달려는 사용자는 로그인 상태여야 한다. |
+| Trigger | 사용자가 ‘댓글 생성’ 버튼을 클릭하였을 때 |
+| Success Post Condition | 시스템이 댓글을 생성하기 위한 프롬프트로 정상입력된다. |
+| Failed Post Condition | 시스템은 프롬프트의 길이가 적절하지 않다는 메세지를 띄운다. 사용자는 기존에 입력한 텍스트 박스를 반환받는다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 댓글 생성 혹은 수정을 위해, 텍스트 박스에 문자를 입력한다. |
+| 1 | 이 Use case 는 사용자가 게시글에 댓글을 생성 혹은 수정하고자 할 때 시작된다. |
+| 2 | 사용자는 게시글 하단의 ‘댓글 생성’ 버튼을 클릭한다. |
+| 3 | 시스템은 사용자가 입력한 텍스트의 길이가 적절한지 판단한다. |
+| 4 | 이 Use case 는 사용자가 입력한 텍스트가 AI에게 프롬프트로 전달이 성공하면 끝난다 . |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 3 | 3a. 사용자가 입력한 텍스트의 길이가 적절하지 않아 프롬프트로 전달되지 않는다. | 3a1. 사용자가 입력한 텍스트가 너무 짧거나 길다는 메세지를 띄운다. / 3a2. 댓글 생성을 위한 텍스트를 입력하는 단계로 돌아간다 . (Use case #23-2) |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 2 seconds |
+| Frequency | 회원당 하루에 평균 12 번 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025.11.07. |
+
+---
+
+### Use case #23 : Update Comment
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자가 이전 생성한 댓글을 수정하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 허태규 |
+| Last Update | 2025. 11. 06. |
+| Status | Analysis (Finalize) |
+| Primary Actor | register user |
+| Preconditions | 댓글을 수정하려는 사용자는 로그인 상태여야 한다. 사용자는 반드시 임의의 게시글을 조회 중인 상태여야 한다. 사용자가 생성한 댓글이 조회 중인 게시글에 존재해야 한다. |
+| Trigger | 사용자가 자신의 댓글에 대해 ‘댓글 수정’ 버튼을 클릭하였을 때 |
+| Success Post Condition | 사용자가 새로 입력한 프롬프트를 기반으로 새롭게 생성된 댓글이 수정 시간에 대한 타입스탬프가 추가되어 DB에 저장된다. 사용자가 수정한 댓글이 수정 시간 타임스탬프가 추가 되어 화면에 즉시 표시된다. |
+| Failed Post Condition | 사용자에게 적절한 실패 메세지를 띄운다. 시스템은 기존의 댓글의 정보 및 상태를 유지한다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 게시한 임의의 댓글을 수정한다. |
+| 1 | 이 Use case 는 사용자가 자신이 게시한 댓글을 수정하고자 할 때 시작된다. |
+| 2 | 사용자는 자신이 생성한 댓글에 대하여 ‘댓글 수정’ 버튼을 클릭한다. |
+| 3 | 시스템은 사용자 입력을 바탕으로 댓글을 새롭게 생성한다. |
+| 4 | 시스템이 생성한 댓글이 화면에 표시되면, 이 Use case는 끝난다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 3 | 3a. 시스템이 댓글 수정에 실패한다. | 3a1. 댓글 수정에 실패하였다는 메세지를 띄운다. / 3a2. 댓글 수정 버튼을 누르는 단계로 돌아간다. (Use case #24-2) |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 10 seconds |
+| Frequency | 사용자당 하루에 평균 2 번 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025.11.07. |
+
+---
+
+### Use case #24 : Delete Comment
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자가 이전 생성한 댓글을 삭제하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 허태규 |
+| Last Update | 2025. 11. 06. |
+| Status | Analysis (Finalize) |
+| Primary Actor | register user |
+| Preconditions | 댓글을 수정하려는 사용자는 로그인 상태여야 한다. 사용자는 반드시 임의의 게시글을 조회 중인 상태여야 한다. 사용자가 생성한 댓글이 조회 중인 게시글에 존재해야 한다. |
+| Trigger | 사용자가 자신의 댓글에 대해 ‘댓글 삭제’ 버튼을 클릭하였을 때 |
+| Success Post Condition | 사용자가 생성한 댓글이 시스템에 의해 DB에서 삭제된다. 사용자가 생성한 댓글이 시스템에서 즉시로 표시되지 않는다. |
+| Failed Post Condition | 사용자에게 적절한 실패 메세지를 띄운다. 시스템은 기존의 댓글의 정보 및 상태를 유지한다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 게시한 임의의 댓글을 삭제한다. |
+| 1 | 이 Use case 는 사용자가 자신이 게시한 댓글을 삭제하고자 할 때 시작된다. |
+| 2 | 사용자는 자신이 생성한 댓글에 대하여 ‘댓글 삭제’ 버튼을 클릭한다. |
+| 3 | 시스템은 사용자의 댓글을 삭제한다. |
+| 4 | 시스템이 댓글을 삭제하고, 그 결과가 화면에 표시되면, 이 Use case는 끝난다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 3 | 3a. 시스템이 댓글 삭제에 실패한다. | 3a1. 댓글 삭제에 실패하였다는 메세지를 띄운다. / 3a2. 댓글 삭제 버튼을 누르는 단계로 돌아간다. (Use case #25-2) |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 5 seconds |
+| Frequency | 사용자당 하루에 평균 2 번 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025.11.07. |
+
+---
+
 ## 3. Class diagram
 이번 장은 시스템의 주요 클래스들과 그 관계를 보여주는 Class diagram을 제공한다. 전체 시스템 구조를 파악하기 위해 주요 도메인 및 서비스 클래스를 중심으로 설계하였다.  
 ![Class diagram (p.34)](img/CD.png)
@@ -983,6 +1109,33 @@ References - 허태규
 | dislike | none | void | 싫어요 1 증가 |
 | incrementView | none | void | 조회수 1 증가 |
 | softDelete | none | void | 논리 삭제 처리 |
+
+---
+
+### Comment
+**Class Description**: 댓글 본문·작성자·게시글 참조와 생성/수정 시각 관리
+
+**Attributes**
+| Name | Type | Visibility | Description |
+|---|---|---|---|
+| id | string | private | 댓글 ID |
+| postId | string | private | 소속 게시글 ID |
+| authorId | string | private | 작성자 ID |
+| content | string | private | 댓글 내용 |
+| createdAt | Date | private | 최초 생성 시각 |
+| updatedAt | Date | private | 최종 수정 시각 |
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| getId | none | string | 식별자 조회 |
+| getPostId | none | string | 식별자 조회 |
+| getAuthorId | none | string | 식별자 조회 |
+| getContent | none | string | 내용 조회 |
+| setContent | content: string | void | 내용 변경 |
+| getCreatedAt | none | Date | 시간 조회 |
+| getUpdatedAt | none | Date | 시간 조회 |
+| setUpdatedAt | d: Date | void | 수정 시각 갱신 |
 
 ---
 
@@ -1072,7 +1225,7 @@ References - 허태규
 
 ---
 
-### PostService / EvalService
+### PostService / CommentService / EvalService
 **PostService — Class Description**: 게시글 CRUD + AI/DB 조율
 
 **Operations**
@@ -1084,6 +1237,15 @@ References - 허태규
 | getById | id: string | Post | 단건 조회 |
 | list | filter: any | Post[] | 목록 조회(정렬/검색 포함) |
 | increaseView | postId: string | void | 조회수 +1 |
+
+**CommentService — Class Description**: 댓글 생성/수정/삭제
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| createFromPrompt | postId: string, authorId: string, prompt: string | Comment | 프롬프트로 댓글 생성 |
+| editWithPrompt | commentId: string, editorId: string, prompt: string | Comment | 프롬프트로 댓글 수정 |
+| delete | commentId: string, requestorId: string | boolean | 댓글 삭제 |
 
 **EvalService — Class Description**: 좋아요/싫어요 생성·삭제 + 알림 연동
 
@@ -1262,19 +1424,90 @@ References - 허태규
 ---
 
 ## 6. User interface prototype
+![p.70](img/UI1.png)
+위의 화면은 알림 상세 정보 화면이다. 사용자에게 전송된 알림을 볼 수 있는 Noti목록이 있다. Noti 목록에서는 알림의 제목, 날짜 등 간략한 알림 정보를 보여준다. Noti목록을 스크롤하며 확인하고 싶은 알림을 선택하면 아래에 알림의 세부사항을 확인할 수 있다. 알림 세부사항에서는 추가적으로 description을 볼 수 있다.  
 
+![p.71](img/UI2.png)
+위의 화면은 회원가입화면이다. 사용자는 사용할 id와 password를 입력하는 텍스트 칸이 있고, 자신이 봇이 아닌 인간임을 인증할 수 있는 captcha 버튼이 있다. 모든 양식을 채우고 register 버튼을 누르면 회원가입이 완료된다.  
+
+![p.72](img/UI3.png)
+위의 화면은 게시글 생성화면이다. 게시글 제목을 입력하는 텍스트 입력 칸이다. 아래에는 Ai가 게시글 내용을 작성할 때 사용될 사용하는 프롬포트 텍스트 입력 칸이다. 모든 양식을 입력하고 create Post 버튼을 누르면 최종적으로 게시글이 생성된다.  
+
+![p.73](img/UI4.png)
+위의 화면은 로그인 화면이다. 사용자는 id와 password를 입력할 수 있다. 아래에는 자신이 봇이 아닌 인간임을 인증할 수 있는 captcha 버튼이 있다. 모든 양식을 입력하고 Login 버튼을 누르면 입력한 정보를 토대로 Login 로직을 실핼 할 수 있다.  
+
+![p.74](img/UI5.png)
+위 그림은 게시판 화면이다. 상단의 게시판을 선택하여 위 화면을 열 수 있으며, 중앙에 해당 게시판이 열린다. 그 후 사용자는 게시판에 있는 게시글을 눌러 게시글을 열 수 있다. 1페이지에는 약 10개의 게시글이 표시되며, 하단의 번호나 화살표를 눌러 다음 페이지의 게시글을 확인 할 수 있다.  
+
+![p.75](img/UI6.png)
+위 그림은 게시글 화면이다. 사용자는 상단에서 글의 제목, 작성자의 닉네임, 작성일과 수정일, 좋아요와 싫어요의 수를 확인할 수 있으며, 중간에선 글의 내용을 확인할 수 있다. 하단에서는 이 게시글에 달린 댓글의 정보를 확인 할 수 있으며, 댓글이나 좋아요나 싫어요같은 평가도 남길 수 있다.  
+
+![p.76](img/UI7.png)
+위 그림은 홈 화면이다. 웹사이트에 접속하면 가장 먼저 보이는 화면으로 다른 화면을 연결한다. 웹사이트의 이름이나 로고를 확인할 수 있고, 로그인 화면이나 알림창 화면과 게시판 화면을 열 수 있다.  
+
+![p.77](img/UI8.png)
+위의 화면은 개인 정보화면이다. 사용자의 닉네임 ,이메일, id를 확인할 수 있다. 아래에서 사용자가 작성한 게시글 목록과 사용자가 작성한 댓글 목록을 확인할 수 있다.  
+
+![p.78](img/UI9.png)
+이 게시판은 로그인 전과 로그인 후의 시각적 경험을 다르게 제공하여, 사용자가 작성한 프롬프트(prompt)를 기반으로 AI가 생성한 게시글임을 직관적으로 인지할 수 있도록 설계되었다. 로그인 시 화면이 즉시 컬러풀하게 변화하며 배경, 버튼, 텍스트 등에 색감이 추가되어 생동감 있는 UI로 전환된다. 
+![p.79](img/UI10.png)  
+![p.80](img/UI11.png)  
+![p.81](img/UI12.png)  
+![p.82](img/UI13.png)  
+![p.83](img/UI14.png)  
+![p.84](img/UI15.png)  
+![p.85](img/UI16.png)
 
 ---
 
 ## 7. Implementation requirements
+**H/W Platform Requirements**  
+CPU: Intel Core Xeon E3 7세대 이상  
+RAM: 64GB  
+Storage: SSD 128GB 이상  
+Network: 100Mbps 이상
 
+**S/W Platform Requirements**  
+OS: Windows 10/11, macOS, 또는 Linux  
+Development Environment: Visual Studio Code (latest)  
+Runtime / Framework: Node.js 20.x (npm 포함), Next.js Framework  
+Version Control: Git
+
+**Server Platform Requirements**  
+Hosting Platform: Vercel (Next.js 기반 서버리스 환경)  
+Database / Backend: Supabase (PostgreSQL 기반, Auth 및 Storage 포함)  
+Implementation Languages: JavaScript (React, Node.js)  
+Server OS: Ubuntu 20.04 LTS (Vercel 및 Supabase 내부 환경 기준)
+
+**Non-functional Requirements**  
+Scalability: 소규모 사용자(<100명/일) 기준 안정적 운영 가능  
+Modularity: 프론트엔드와 백엔드 코드 분리  
+Performance: 평균 응답시간 1초 이내
 
 ---
 
 ## 8. Glossary
-
+| 이름 | 설명 |
+|---|---|
+| TTT | The Turing Test의 준말, 프로젝트의 이름 이자 로고이기도 하다. |
+| 죽은 인터넷 이론 | 인터넷에 공급되는 각종 정보 및 콘텐츠 는 대부분 자동화  봇(AI)의 산물이며, 이용자 가운데 실제 사람의 참여나 노력 으로 생산되는 것은 거의 없게 되었다(=  인터넷은 죽었다)는 가설 |
+| 프롬프트 | LLM과 같은 언어 모델이나 모델 기반  AI 서비스, 생성 AI에 입력하는 입력값 |
+| CAPTHA | ‘Completely Automated Public Turing  test to tell Computers and Humans Apart’의 준말. 웹사이트에서 사람이 접 근하려고 하는 것인지 봇이 접근 하는  것인지 판단하기 위하여 사용되는 튜링  테스트 |
 
 ---
 
 ## 9. References
+[dead internet theory document in wikipidia]  
+https://en.wikipedia.org/wiki/Dead_Internet_theory
 
+[next.js official docs]  
+https://nextjs.org/docs
+
+[supabase official docs]  
+https://supabase.com/docs\
+
+[layerd architecture pattern explain]  
+https://dev.to/yasmine_ddec94f4d4/understanding-the-layered-architecture-pattern-a-comprehensi ve-guide-1e2j
+
+[common webarchitecture explain]  
+https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-applic ation-architectures
