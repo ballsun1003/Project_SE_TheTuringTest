@@ -1,0 +1,182 @@
+classDiagram
+  direction LR
+
+  %% ====== Container (Data Only) ======
+  class User {
+    +id: String
+    +email: String
+    +nickname: String
+    +permission: enum
+    +isActive: boolean
+    +createdAt: Date
+    +lastLoginAt: Date
+  }
+  class Post {
+    +id: String
+    +title: String
+    +content: String
+    +authorId: String
+    +modelName: String
+    +likeCount: int
+    +dislikeCount: int
+    +viewCount: int
+    +createdAt: Date
+    +updatedAt: Date
+    +isDeleted: boolean
+  }
+  class Comment {
+    +id: String
+    +postId: String
+    +authorId: String
+    +content: String
+    +createdAt: Date
+    +updatedAt: Date
+  }
+  class Evaluation {
+    +evalid: String
+    +postId: String
+    +userId: String
+    +type: enum
+  }
+  class Noti {
+    +id: String
+    +userId: String
+    +title: String
+    +body: String
+    +isRead: boolean
+    +createdAt: Date
+  }
+
+  User "1" --> "many" Post : author
+  User "1" --> "many" Comment
+  User "1" --> "many" Evaluation
+  User "1" --> "many" Noti
+  Post "1" --> "many" Comment
+  Post "1" --> "many" Evaluation
+
+  %% ====== Components ======
+  class SearchBox {
+    +onSubmit(criteria: enum, keyword: String): Post[]
+  }
+  class PostList {
+    +items: Post[]
+    +render(): void
+  }
+
+  %% ====== Screens ======
+  class HomeScreen {
+    +render(): void
+  }
+  class LoginScreen {
+    +email: String
+    +password: String
+    +submit(id: String, password: String): void
+  }
+  class SignUpScreen {
+    +email: String
+    +password: String
+    +confirmPassword: String
+    +nickname: String
+    +submit(email: String, password: String, confirmPassword: String, nickname: String): void
+  }
+  class BoardScreen {
+    +render(): void
+    +applyFilter(): void
+  }
+  class PostScreen {
+    +postId: String
+    +like(): void
+    +dislike(): void
+    +addComment(prompt: String): void
+  }
+  class PostCreateScreen {
+    +title: String
+    +prompt: String
+    +submit(): void
+  }
+  class UserProfileScreen {
+    +showMyComment(): void
+    +showMyPost(): void
+    +showMyLoginHistory(): void
+    +updateProfile(): void
+  }
+  class NotiListScreen {
+    +load(): void
+    +markAsRead(notiId: String): void
+  }
+
+  %% ====== Services ======
+  class AI {
+    +generateText(prompt: String): String
+    +editText(base: String, prompt: String): String
+  }
+  class DB {
+    +select(resource: String, criteria: any): any
+    +insert(resource: String, data: any): any
+    +update(resource: String, id: String, patch: any): any
+    +delete(resource: String, id: String): any
+  }
+  class AUTH {
+    +signUp(email: String, password: String, nickname: String): User
+    +signIn(email: String, password: String): String
+    +signOut(): void
+    +reAuth(password: String): boolean
+    +verifyCAPTCHA(token: String): boolean
+    +verifyEmail(token: String, email: String): boolean
+    +updateProfile(patch: User): void
+  }
+  class PostService {
+    +createFromPrompt(authorId: String, title: String, prompt: String): Post
+    +editWithPrompt(postId: String, editorId: String, prompt: String): Post
+    +delete(postId: String, requestorId: String): boolean
+    +getById(id: String): Post
+    +list(filter: any): Post[]
+    +increaseView(postId: String): void
+  }
+  class CommentService {
+    +createFromPrompt(postId: String, authorId: String, prompt: String): Comment
+    +editWithPrompt(commentId: String, editorId: String, prompt: String): Comment
+    +delete(commentId: String, requestorId: String): boolean
+  }
+  class EvalService {
+    +evaluate(postId: String, userId: String, type: enum): Evaluation
+    +delete(evalid: String): void
+  }
+  class NotiService {
+    +send(toUserId: String, title: String, body: String): boolean
+    +markAsRead(notiId: String): boolean
+    +listForUser(userId: String): Noti[]
+    +detectTriggers(event: String): void
+    +deleteNoti(notiId: String): boolean
+    +subscribe(userId: String): any
+  }
+
+  %% Dependencies (UI -> Services)
+  LoginScreen ..> AUTH : signIn()
+  SignUpScreen ..> AUTH : signUp(), verifyEmail()
+  SignUpScreen ..> AUTH : verifyCAPTCHA()
+  BoardScreen ..> SearchService : searchPosts()
+  BoardScreen ..> PostService : list()
+  HomeScreen ..> PostService : list()
+  PostScreen ..> PostService : getById()
+  PostScreen ..> EvalService : evaluate()
+  PostScreen ..> CommentService : createFromPrompt()
+  PostCreateScreen ..> PostService : createFromPrompt()
+  PostCreateScreen ..> AI : generateText()
+  UserProfileScreen ..> AUTH : me(), updateProfile()
+  NotiListScreen ..> NotiService : listForUser(), markAsRead()
+  SearchBox ..> SearchService : searchPosts()
+  PostList ..> PostService : list()
+  CAPTCHA ..> AUTH : verifyCAPTCHA()
+
+  %% Service internals
+  PostService ..> AI
+  PostService ..> DB
+  CommentService ..> AI
+  CommentService ..> DB
+  EvalService ..> DB
+  SearchService ..> DB
+  NotiService ..> DB
+  AUTH ..> DB
+  EvalService ..> NotiService : onLike/Dislike
+  CommentService ..> NotiService : onReply
