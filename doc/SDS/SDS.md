@@ -608,9 +608,343 @@ References - 허태규
 
 ---
 
+### Use case #15 : 회원가입
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자가 시스템 사용을 위해 새 계정을 생성하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 박종선 |
+| Last Update | 2025. 11. 04. |
+| Status | Analysis (Finalize) |
+| Primary Actor | 사용자 |
+| Preconditions | 사용자가 사이트에 접속되어 있어야 한다. |
+| Trigger | 사용자가 회원가입 페이지에 접근할 때 |
+| Success Post Condition | 사용자 계정이 생성된다. |
+| Failed Post Condition | 사용자 계정이 생성되지 않는다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 회원가입을 시도한다. |
+| 1 | 사용자는 이용약관 및 개인정보 수집에 대한 내용을 확인하고 동의 체크박스를 선택한다. |
+| 2 | 사용자는 회원가입 페이지에서 이메일, 비밀번호, 비밀번호 확인, 닉네임을 입력한다. |
+| 3 | 시스템은 입력된 이메일 주소 형식이 유효한지, 이미 사용중인 계정이 있는지 검사한다. |
+| 4 | 시스템은 입력된 비밀번호의 유효성을 검사하고, 비밀번호와 비밀번호 확인 입력값이 일치하는 지 확인한다. |
+| 5 | 사용자는 CAPTCHA를 수행한다. |
+| 6 | 사용자가 '회원가입' 버튼을 클릭한다. |
+| 7 | 시스템은 유효한 요청에 대해, 입력된 비밀번호를 단방향 암호화하여 사용자 계정 정보를 데이터베이스에 저장한다. |
+| 8 | 시스템은 회원가입 성공 메시지를 표시하고 사용자를 메인 화면으로 이동시킨다. |
+| 9 | 시스템은 Use case #20를 실행하여 계정 활성화를 위한 인증 링크 또는 코드가 포함된 이메일을 발송한다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 3 | 3a. 이메일 형식이 유효하지 않음 | 3a1. 시스템은 오류 메시지를 표시한다. / 3a2. Step 2로 돌아간다. |
+| 3 | 3b. 이메일이 이미 존재함 | 3b1. 시스템은 오류 메시지를 표시한다. / 3b2. Step 2로 돌아간다. |
+| 4 | 4a. 비밀번호 규칙 위반 | 4a1. 시스템은 오류 메시지를 표시한다. / 4a2. Step 2로 돌아간다. |
+| 4 | 4b. 비밀번호와 비밀번호 확인 불일치: | 4b1. 시스템은 오류 메시지를 표시한다. / 4b2. Step 2로 돌아간다. |
+| 5 | 5a. CAPTCHA 인증 실패 | 5a1. 시스템은 오류 메시지를 표시하고 새로운 CAPTCHA를 제공한다. / 5a2. Step 5로 돌아간다. |
+| 7 | 7a. 데이터베이스 저장 실패 | 7a1. 시스템은 오류 메시지를 표시한다. / 7a2. Use case는 종료된다. |
+| 8 | 8a. 이메일 발송 오류 | 8a1. 이메일 오입력 등으로 발송이 실패할 경우 고객센터에 문의하라는 메시지를 표시한다. / 8a2. 관리자 개입 등을 통해 문제를 해결한다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 5 seconds |
+| Frequency | 사용자당 1회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025. 11. 07. |
+
+---
+
+### Use case #16 : 로그인
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자가 등록된 계정으로 시스템에 접속하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 박종선 |
+| Last Update | 2025. 11. 04. |
+| Status | Analysis (Finalize) |
+| Primary Actor | 사용자 |
+| Preconditions | 사용자가 시스템에 유효한 계정을 가지고 있어야 한다. |
+| Trigger | 사용자가 로그인 페이지에 접근할 때 |
+| Success Post Condition | 사용자가 시스템에 로그인된다. |
+| Failed Post Condition | 사용자가 로그인되지 않는다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 로그인을 시도한다. |
+| 1 | 사용자는 로그인 페이지에서 이메일과 비밀번호를 입력한다. |
+| 2 | 사용자가 '로그인' 버튼을 클릭한다. |
+| 3 | 시스템은 계정이 존재하고 비밀번호가 일치하는지 확인한다. |
+| 4 | 시스템은 해당 계정이 활성화 상태인지 확인한다. |
+| 5 | 시스템은 사용자를 로그인 상태로 전환하며 메인 화면으로 이동시킨다. |
+| 6 | 시스템은 로그인 성공 기록을 데이터베이스에 저장한다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 3 | 3a. 해당 이메일의 계정이 존재하지 않음 | 3a1. 시스템은 오류 메시지를 표시한다. / 3a3. 시스템은 로그인 실패 기록을 저장한다. / 3a4. Step 1로 돌아간다. |
+| 3 | 3b. 비밀번호 불일치 | 3a1. 시스템은 오류 메시지를 표시한다. / 3a3. 시스템은 로그인 실패 기록을 저장한다. / 3b4. 시스템은 사용자에게 CAPTCHA 인증을 요구한다. / 3a4. CAPTCHA 성공시 Step 1로 돌아간다, CAPTCHA 실패시 3b4로 돌아간다. |
+| 4 | 4a. 이메일 인증 미완료로 인한 계정 비활성화 상태 | 4a1. 시스템은 오류메시지를 표시한다. / 4a2. 시스템은 로그인 시도 실패 기록을 저장한다. / 4a3. Use case #20를 실행후 Use case는 종료된다. |
+| 4 | 4b. 계정 정지로 인한 계정 비활성화 상태 | 4b1. 시스템은 오류메시지를 표시한다. / 4b2. 시스템은 로그인 시도 실패 기록을 저장한다. / 4b3. Use case는 종료된다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 2 seconds |
+| Frequency | 사용자당 하루 평균 2회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025. 11. 07. |
+
+---
+
+### Use case #17 : 로그아웃
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자가 현재 로그인 세션을 종료하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 박종선 |
+| Last Update | 2025. 11. 04. |
+| Status | Analysis (Finalize) |
+| Primary Actor | 사용자 |
+| Preconditions | 사용자가 시스템에 로그인 되어 있어야 한다. |
+| Trigger | 사용자가 로그아웃 버튼을 클릭할 때 |
+| Success Post Condition | 사용자가 시스템에서 로그아웃된다. |
+| Failed Post Condition | 사용자가 로그아웃되지 않는다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 로그아웃을 시도한다. |
+| 1 | 사용자가 '로그아웃' 버튼을 클릭한다. |
+| 2 | 시스템은 요청받은 세션 또는 토큰을 즉시 무효화한다. |
+| 3 | 시스템은 사용자를 로그아웃 상태로 전환하며 메인 화면으로 이동시킨다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 3 | 2a. 세션/토큰 무효화 실패 | 2a1. 시스템은 오류메시지를 표시한다. / 2a2. Use case는 종료된다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 2 seconds |
+| Frequency | 사용자당 하루 평균 2회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025. 11. 07. |
+
+---
+
+### Use case #18 : 내 정보 관리
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자가 자신의 정보를 조회하고 변경할 수 있는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 박종선 |
+| Last Update | 2025. 11. 04. |
+| Status | Analysis (Finalize) |
+| Primary Actor | 사용자 |
+| Preconditions | 사용자가 시스템에 로그인 되어 있어야 한다. |
+| Trigger | 사용자가 내 정보 관리 기능에 접속할 때 |
+| Success Post Condition | 1. 사용자의 정보가 변경/조회 된다. |
+| Failed Post Condition | 1. 사용자의 정보 변경/조회가 실패한다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 내 정보 관리 화면에 진입을 시도한다. |
+| 1 | 시스템은 사용자에게 비밀번호 재입력 및 Use case #21을 통해 CAPTCHA 인증을 요구한다. |
+| 2 | 사용자는 현재 비밀번호를 입력하고 CAPTCHA를 인증한 후 확인 버튼을 클릭한다 |
+| 3 | 시스템은 비밀번호 일치 여부와 CAPTCHA 성공 여부를 검증한다. |
+| 4 | 검증 성공 시, 시스템은 '내 정보 관리' 페이지를 표시한다. 이 페이지에는 정보 변경, 로그인 이력 조회, 작성 글/댓글 조회, 약관 조회, 회원 탈퇴 등의 옵션이 포함된다. |
+| 5 | 사용자는 ‘내 정보 관리’ 페이지의 옵션을 선택하여 아래 Extension scenarios에 따라 정보를 변경/조회 할 수 있다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 3 | 3a. 비밀번호가 틀리거나 CAPTCHA 확인 실패 | 3a1. 시스템은 오류메시지를 표시한다. / 3a2. Use case는 종료된다. |
+| 5 | 5a. 사용자가 비밀번호 변경을 시도한다. | 5a1. 시스템은 Use case #20를 통해 이메일 인증을 요구한다. / 5a2. 이메일 인증이 성공하면 시스템은 비밀번호 변경 화면을 표시한다. / 5a3. 사용자는 비밀번호 입력란과 비밀번호 확인란에 새 비밀번호를 입력 후 완료 버튼을  클릭한다. / 5a4. 시스템은 비밀번호가 유효하면 사용자의 비밀번호를 변경하고 “비밀번호 변경 완료”  메시지를 표시 후 step 4로 이동한다. |
+| 5 | 5b. 사용자가 이메일 변경을 시도한다. | 5b1. 시스템은 Use case #20를 통해 이메일 인증을 요구한다. / 5b2. 이메일 인증이 성공하면 시스템은 이메일 변경 화면을 표시한다. / 5b3. 사용자는 이메일 입력란에 새 이메일을 입력 후 완료 버튼을 클릭한다. / 5b4. 시스템은 이메일 형식이 유효하면 새 이메일로 Use case #20를 통해 이메일 인증을  요구한다. / 5b5. 이메일 인증이 성공하면 시스템은 사용자의 이메일을 변경하고 “이메일 변경 완료” 메  시지를 표시 후 step 4로 이동 한다. |
+| 5 | 5c. 사용자가 닉네임 변경을 시도한다. | 5c1. 사용자는 입력란에 새 닉네임을 입력 후 확인 버튼을 클릭한다. / 5c2. 시스템은 닉네임의 중복 여부를 검사하여 중복이 없다면 사용자의 닉네임을 변경하고  “닉네임 변경 완료” 메시지를 표시 후 step 4로 이동한다. |
+| 5 | 5d. 사용자가 회원 탈퇴를 시도한다. | 5d1. 시스템은 탈퇴 확인 메시지를 표시한다. / 5d2. 사용자가 탈퇴 버튼을 클릭하면 시스템은 해당 계정을 비활성화 한다. / 5d3. 시스템은 Use case #18을 실행하며 사용자가 일정 기간 이내에 다시 로그인 하지 않  으면 계정을 영구적으로 삭제한다. |
+| 5 | 5e. 사용자가 이용약관 조회를 시도한다. | 5e1. Use case #22로 이동한다. |
+| 5 | 5f. 사용자가 로그인 이력 조회를 시도한다. | 5f1. 시스템은 데이터베이스에서 해당 사용자의 최근 로그인 기록을 조회하여 표시한다. / 5f2. 사용자가 나가기 버튼을 클릭하면 step 4로 이동한다. |
+| 5 | 5g. 사용자가 본인이 작성한 글의 조회를 시도한다. | 5g1. 게시글 검색 기능으로 이동하여 본인 닉네임을 검색하여 작성글을 검색한다. |
+| 5 | 5h. 사용자가 본인이 작성한 댓글의 조회를 시도한다. | 5h1. 시스템은 데이터베이스에서 해당 사용자의 작성 댓글을 조회하여 표시한다. / 5h2. 사용자가 나가기 버튼을 클릭하면 step 4로 이동한다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 5 seconds |
+| Frequency | 사용자당 월 평균 1회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025. 11. 07. |
+
+---
+
+### Use case #19 : 이메일 인증
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자의 정보가 본인의 것인지 확인하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | User level |
+| Author | 박종선 |
+| Last Update | 2025. 11. 04. |
+| Status | Analysis (Finalize) |
+| Primary Actor | 사용자 |
+| Preconditions | 이메일 인증을 수행할 사용자의 계정이 시스템에 존재해야 한다. |
+| Trigger | 사용자가 직접 요청 / 다른 Use case에 의해서 발동 |
+| Success Post Condition | 사용자의 이메일 인증이 성공한다. |
+| Failed Post Condition | 사용자의 이메일 인증이 실패한다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자에 대해 이메일 인증이 요청된다. |
+| 1 | 시스템은 등록된 이메일을 통해 인증 코드가 포함된 이메일을 발송한다. |
+| 2 | 사용자는 이메일에 포함된 인증 코드를 제한시간 내에 입력한다. |
+| 3 | 이메일 인증이 성공하고 Use case는 종료된다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 2 | 2a. 이메일 발송 실패 | 2a1. 제한시간이 초과되어 이메일 인증이 실패하고 Use case는 종료된다. |
+| 3 | 3a. 인증 코드를 틀리게 입력 | 3a1. step 1로 이동 |
+| 3 | 3b. 제한시간 초과 | 3b1. 이메일 인증이 실패하고 Use case는 종료된다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 120 seconds |
+| Frequency | 사용자당 월 평균 1회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025. 11. 07. |
+
+---
+
+### Use case #20 : CAPTCHA
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 사용자가 봇이 아닌 사람인지 확인하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | Subfunction level |
+| Author | 박종선 |
+| Last Update | 2025. 11. 04. |
+| Status | Analysis (Finalize) |
+| Primary Actor | 사용자 |
+| Preconditions | 인증을 수행할 사용자의 계정이 시스템에 존재해야 한다. |
+| Trigger | 다른 Use case에 의해서 발동 |
+| Success Post Condition | 사용자가 사람임을 증명한다. |
+| Failed Post Condition | 사용자가 사람임을 증명하지 못한다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자에 대해 CAPTCHA가 요청된다. |
+| 1 | 시스템은 사람임을 확인하기 위해 문제를 풀게 한다. |
+| 2 | 사용자는 제시된 문제를 풀어 제출한다. |
+| 3 | CAPTCHA가 성공하고 Use case는 종료된다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 2 | 2a. 문제의 답을 틀리게 입력 | 2a1. CAPTCHA가 실패하고 Use case는 종료된다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 3 seconds |
+| Frequency | 사용자당 월 평균 1회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025. 11. 07. |
+
+---
+
+### Use case #21 : 약관 조회
+**GENERAL CHARACTERISTICS**
+| 항목 | 내용 |
+|---|---|
+| Summary | 이용약관과 각종 정책을 조회하는 기능 |
+| Scope | TTT (The Turing Test) |
+| Level | Subfunction level |
+| Author | 박종선 |
+| Last Update | 2025. 11. 04. |
+| Status | Analysis (Finalize) |
+| Primary Actor | 사용자 |
+| Preconditions | 사용자가 시스템에 접속되어 있어야 한다. |
+| Trigger | 다른 Use case에 의해서 발동 |
+| Success Post Condition | 사용자가 이용약관과 정책을 확인한다. |
+| Failed Post Condition | 사용자가 이용약관과 정책을 확인하지 못한다. |
+
+**MAIN SUCCESS SCENARIO**
+| Step | Action |
+|---|---|
+| S | 사용자가 이용약관과 정책을 확인하려 한다. |
+| 1 | 시스템은 이용약관과 정책을 표시한다. |
+| 2 | 사용자가 확인 버튼을 클릭하면 Use case는 종료된다. |
+
+**EXTENSION SCENARIOS**
+| Step | Branching | Action |
+|---|---|---|
+| 1 | 1a. 시스템 오류로 이용약관 또는 정책을 표시하지 못함 | 1a1. Use case는 종료된다. |
+
+**RELATED INFORMATION**
+| 구분 | 값 |
+|---|---|
+| Performance | ≤ 3 seconds |
+| Frequency | 사용자당 연 평균 1회 |
+| Concurrency | 제한 없음 |
+| Due Date | 2025. 11. 07. |
+
+---
+
 ## 3. Class diagram
 이번 장은 시스템의 주요 클래스들과 그 관계를 보여주는 Class diagram을 제공한다. 전체 시스템 구조를 파악하기 위해 주요 도메인 및 서비스 클래스를 중심으로 설계하였다.  
 ![Class diagram (p.34)](img/CD.png)
+
+### User
+**Class Description**: 사용자 계정의 핵심 데이터. 이메일/비밀번호/닉네임/권한/상태를 가진다.
+
+**Attributes**
+| Name | Type | Visibility | Description |
+|---|---|---|---|
+| id | string | private | 사용자 고유 ID |
+| email | string | private | 로그인용 이메일 |
+| passwordHash | string | private | 암호화된 비밀번호 |
+| nickname | string | private | 닉네임 |
+| permission | Permission | private | 권한 |
+| isActive | boolean | private | 활성화 여부 |
+| lastLoginAt | Date | private | 마지막 로그인 시각 |
+| createdAt | Date | private | 계정 생성 시각 |
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| getId | none | string | ID 조회 |
+| getEmail | none | string | 이메일 조회 |
+| setEmail | email: string | void | 이메일 변경 |
+| verifyPassword | plain: string | boolean | 평문 비밀번호가 해시와 일치하는지 검사 |
+| getNickname | none | string | 닉네임 조회 |
+| setNickname | nickname: string | void | 닉네임 변경 |
+| getPermission | none | Permission | 권한 조회 |
+| setPermission | p: Permission | void | 권한 변경 |
+| isActive | none | boolean | 활성 여부 조회 |
+| setActive | active: boolean | void | 활성 상태 변경 |
+| getLastLoginAt | none | Date | 마지막 로그인 조회 |
+| setLastLoginAt | d: Date | void | 마지막 로그인 갱신 |
+| getCreatedAt | none | Date | 생성일 조회 |
 
 ---
 
@@ -723,6 +1057,19 @@ References - 허태규
 | update | resource: string, id: string, patch: any | any | 부분 수정 |
 | delete | resource: string, id: string | any | 삭제 |
 
+**Auth — Class Description**: 회원가입/로그인/인증/프로필 갱신
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| signUp | email: string, password: string, nickname: string | User | 사용자 등록 |
+| verifyEmail | email: string, code: string | boolean | 이메일 인증 |
+| signIn | email: string, password: string | string | 로그인(토큰/세션ID) |
+| signOut | none | void | 로그아웃 |
+| reAuth | password: string | boolean | 민감 변경 전 재인증 |
+| verifyCAPTCHA | none | boolean | 사람 인증 |
+| updateProfile | user: User | void | 프로필 갱신 |
+
 ---
 
 ### PostService / EvalService
@@ -819,9 +1166,46 @@ References - 허태규
 |---|---|---|---|
 | onSubmit | field: SearchField, keyword: string | Post[] | 조건 기반 검색 |
 
+**LoginScreen — Class Description**: 로그인 화면
+
+**Attributes**
+| Name | Type | Visibility | Description |
+|---|---|---|---|
+| email | string | private | 입력 이메일 |
+| password | string | private | 입력 비밀번호 |
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| submit | email: string, password: string | void | 입력 검증 후 Auth.signIn호출 |
+
 ---
 
 ### SignUpScreen / UserProfileScreen / NotiList
+**SignUpScreen — Class Description**: 회원가입 화면
+
+**Attributes**
+| Name | Type | Visibility | Description |
+|---|---|---|---|
+| email | string | private | 입력 이메일 |
+| password | string | private | 입력 비밀번호 |
+| confirmPassword | string | private | 비밀번호 확인 |
+| nickname | string | private | 닉네임 |
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| submit | email: string, password: string, confirmPassword: string, nickname: string | void | 유효성 검사 → CAPTCHA → Auth.signUp |
+
+**UserProfileScreen — Class Description**: 내 글/댓글 보기, 프로필 수정, 로그인 이력
+
+**Operations**
+| Name | Argument | Returns | Description |
+|---|---|---|---|
+| showMyComment | none | void | 내가 쓴 댓글 표시 |
+| showMyPost | none | void | 내가 쓴 글 표시 |
+| updateMyProfile | none | void | 프로필 수정 |
+| showMyLoginHistory | none | void | 로그인 이력 표시 |
 
 **NotiList — Class Description**: 알림 목록 화면
 
@@ -839,10 +1223,41 @@ References - 허태규
 ---
 
 ## 4. Sequence diagram
+이 장은 주요 Use case의 실행 흐름을 보여주는 Sequence diagram을 제공한다. 각 다이어그램은 특정 Use case description의 시나리오를 기반으로 객체 간의 상호작용을 시간 순서대로 묘사한다.
+
+- Use case #1 : Post Search — ![p.45](img/SD#1.png)  
+- Use case #2 : User Search — ![p.46](img/SD#2.png)  
+- Use case #3 : Post Evaluation — ![p.47](img/SD#3.png)  
+- Use case #4 : 알림 설정 — ![p.48](img/SD#4.png)  
+- Use case #5 : 알림 목록 보기 — ![p.49](img/SD#5.png)  
+- Use case #6 : 알림 전송 — ![p.50](img/SD#6.png)  
+- Use case #7 : 관리자 로그인 — ![p.51](img/SD#7.png)  
+- Use case #8 : 사용자 정보 조회 — ![p.52](img/SD#8.png)  
+- Use case #9 : 사용자 정보 수정 — ![p.53](img/SD#9.png)  
+- Use case #10 : 게시글 작성 — ![p.54](img/SD#10.png)  
+- Use case #11 : 게시글 수정 — ![p.55](img/SD#11.png)  
+- Use case #12 : 게시글 삭제 — ![p.56](img/SD#12.png)  
+- Use case #13 : 게시글 목록 — ![p.57](img/SD#13.png)  
+- Use case #14 : 게시글 조회 — ![p.58](img/SD#14.png)  
+- Use case #15 : 회원가입 — ![p.59](img/SD#15.png)  
+- Use case #16 : 로그인 — ![p.60](img/SD#16.png)  
+- Use case #17 : 로그아웃 — ![p.61](img/SD#17.png)  
+- Use case #18 : 내 정보 관리 — ![p.62](img/SD#18.png)  
+- Use case #19 : 이메일 인증 — ![p.63](img/SD#19.png)  
+- Use case #20 : CAPTCHA — ![p.64](img/SD#20.png)  
+- Use case #21 : 약관 조회 — ![p.65](img/SD#21.png)  
+- Use case #22 : Check Text-box — ![p.66](img/SD#22.png)  
+- Use case #23 : Update Comment — ![p.67](img/SD#23.png)  
+- Use case #24 : Delete Comment — ![p.68](img/SD#24.png)
 
 ---
 
 ## 5. State machine diagram
+이 장은 시스템 또는 주요 객체의 상태 변화를 보여주는 State machine diagram을 제공한다. 사용자 인증 상태 변화를 중심으로 설계하였다.  
+![State machine (p.69)](img/StateMachine)
+이 도표는 클라이언트(웹 애플리케이션) 의 상태 전이를 기술한다. 본 도표에서는 화면(뷰) 중심으로 상태를 정의 하였다. 이는 “사용자에게 무엇을 보여주고 있는지”를 기준으로 상태를 정의하며, 화면 단위 컴포지트 상태와 네트워크 요청 상태를 분리해 설명한다.  
+![State machine (p.69)](img/AuthStateMachine)
+위 다이어그램은 서버에서 인증, 계정에 관련된 처리과정을 나타낸다. 클라이언트에서 발생한 요청은 여기서 처리되고, 그 결과 이벤트(성공/실패)가 다시 클라이언트 SMD 전이 조건으로 반영된다.  
 
 ---
 
