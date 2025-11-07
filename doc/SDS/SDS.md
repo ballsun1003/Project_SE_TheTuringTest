@@ -1387,30 +1387,30 @@ References - 허태규
 ## 4. Sequence diagram
 이 장은 주요 Use case의 실행 흐름을 보여주는 Sequence diagram을 제공한다. 각 다이어그램은 특정 Use case description의 시나리오를 기반으로 객체 간의 상호작용을 시간 순서대로 묘사한다.
 
-- Use case #1 : Post Search — ![p.45](img/SD#1.png)  
-- Use case #2 : User Search — ![p.46](img/SD#2.png)  
-- Use case #3 : Post Evaluation — ![p.47](img/SD#3.png)  
-- Use case #4 : 알림 설정 — ![p.48](img/SD#4.png)  
-- Use case #5 : 알림 목록 보기 — ![p.49](img/SD#5.png)  
-- Use case #6 : 알림 전송 — ![p.50](img/SD#6.png)  
-- Use case #7 : 관리자 로그인 — ![p.51](img/SD#7.png)  
-- Use case #8 : 사용자 정보 조회 — ![p.52](img/SD#8.png)  
-- Use case #9 : 사용자 정보 수정 — ![p.53](img/SD#9.png)  
-- Use case #10 : 게시글 작성 — ![p.54](img/SD#10.png)  
-- Use case #11 : 게시글 수정 — ![p.55](img/SD#11.png)  
-- Use case #12 : 게시글 삭제 — ![p.56](img/SD#12.png)  
-- Use case #13 : 게시글 목록 — ![p.57](img/SD#13.png)  
-- Use case #14 : 게시글 조회 — ![p.58](img/SD#14.png)  
-- Use case #15 : 회원가입 — ![p.59](img/SD#15.png)  
-- Use case #16 : 로그인 — ![p.60](img/SD#16.png)  
-- Use case #17 : 로그아웃 — ![p.61](img/SD#17.png)  
-- Use case #18 : 내 정보 관리 — ![p.62](img/SD#18.png)  
-- Use case #19 : 이메일 인증 — ![p.63](img/SD#19.png)  
-- Use case #20 : CAPTCHA — ![p.64](img/SD#20.png)  
-- Use case #21 : 약관 조회 — ![p.65](img/SD#21.png)  
-- Use case #22 : Check Text-box — ![p.66](img/SD#22.png)  
-- Use case #23 : Update Comment — ![p.67](img/SD#23.png)  
-- Use case #24 : Delete Comment — ![p.68](img/SD#24.png)
+- Use case #1 : Post Search — ![p.45](img/SD1.png)  
+- Use case #2 : User Search — ![p.46](img/SD2.png)  
+- Use case #3 : Post Evaluation — ![p.47](img/SD3.png)  
+- Use case #4 : 알림 설정 — ![p.48](img/SD4.png)  
+- Use case #5 : 알림 목록 보기 — ![p.49](img/SD5.png)  
+- Use case #6 : 알림 전송 — ![p.50](img/SD6.png)  
+- Use case #7 : 관리자 로그인 — ![p.51](img/SD7.png)  
+- Use case #8 : 사용자 정보 조회 — ![p.52](img/SD8.png)  
+- Use case #9 : 사용자 정보 수정 — ![p.53](img/SD9.png)  
+- Use case #10 : 게시글 작성 — ![p.54](img/SD10.png)  
+- Use case #11 : 게시글 수정 — ![p.55](img/SD11.png)  
+- Use case #12 : 게시글 삭제 — ![p.56](img/SD12.png)  
+- Use case #13 : 게시글 목록 — ![p.57](img/SD13.png)  
+- Use case #14 : 게시글 조회 — ![p.58](img/SD14.png)  
+- Use case #15 : 회원가입 — ![p.59](img/SD15.png)  
+- Use case #16 : 로그인 — ![p.60](img/SD16.png)  
+- Use case #17 : 로그아웃 — ![p.61](img/SD17.png)  
+- Use case #18 : 내 정보 관리 — ![p.62](img/SD18.png)  
+- Use case #19 : 이메일 인증 — ![p.63](img/SD19.png)  
+- Use case #20 : CAPTCHA — ![p.64](img/SD20.png)  
+- Use case #21 : 약관 조회 — ![p.65](img/SD21.png)  
+- Use case #22 : Check Text-box — ![p.66](img/SD22.png)  
+- Use case #23 : Update Comment — ![p.67](img/SD23.png)  
+- Use case #24 : Delete Comment — ![p.68](img/SD24.png)
 
 ---
 
@@ -1511,3 +1511,4 @@ https://dev.to/yasmine_ddec94f4d4/understanding-the-layered-architecture-pattern
 
 [common webarchitecture explain]  
 https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-applic ation-architectures
+
