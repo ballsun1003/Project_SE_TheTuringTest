@@ -1091,6 +1091,7 @@ References - 허태규
 | createdAt | Date | private | 생성 시각 |
 | updatedAt | Date | private | 수정 시각 |
 | isDeleted | boolean | private | 논리 삭제 여부 |
+| category | enum | private | 게시글 분류 |
 
 **Operations**
 | Name | Argument | Returns | Description |
@@ -1109,6 +1110,8 @@ References - 허태규
 | dislike | none | void | 싫어요 1 증가 |
 | incrementView | none | void | 조회수 1 증가 |
 | softDelete | none | void | 논리 삭제 처리 |
+| getCategory | none | enum  | 게시글 분류 조회 |
+| setCategory | category: enum | void | 게시글 분류 변경 |
 
 ---
 
@@ -1633,6 +1636,7 @@ https://dev.to/yasmine_ddec94f4d4/understanding-the-layered-architecture-pattern
 
 [common webarchitecture explain]  
 https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-applic ation-architectures
+
 
 
 
