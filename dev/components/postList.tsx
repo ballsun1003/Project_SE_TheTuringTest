@@ -23,7 +23,7 @@ export default function PostList({ posts }: PostListProps) {
         return (
           <Link
             key={post.id}
-            href={`/posts/${post.id}`}
+            href={`/post/${post.id}`}
             className="block py-4 hover:bg-gray-50"
           >
             <div className="flex items-start justify-between gap-4">
