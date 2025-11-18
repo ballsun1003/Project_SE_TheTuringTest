@@ -1,0 +1,278 @@
+classDiagram
+direction LR
+
+class Permission {
+  <<enumeration>>
+  USER
+  ADMIN
+}
+
+class EvalType {
+  <<enumeration>>
+  LIKE
+  DISLIKE
+}
+
+class SearchField {
+  <<enumeration>>
+  TITLE
+  CONTENT
+  AUTHOR
+  COMMENT
+}
+
+class PostCategory {
+  <<enumeration>>
+  ALL
+  NOTICE
+  FREE
+  QNA
+}
+
+class User {
+  -id: string
+  -email: string
+  -passwordHash: string
+  -nickname: string
+  -permission: Permission
+  -isActive: boolean
+  -lastLoginAt: Date
+  -createdAt: Date
+  +getId(): string
+  +getEmail(): string
+  +setEmail(email: string): void
+  +verifyPassword(plain: string): boolean
+  +getNickname(): string
+  +setNickname(nickname: string): void
+  +getPermission(): Permission
+  +setPermission(p: Permission): void
+  +isActive(): boolean
+  +setActive(active: boolean): void
+  +getLastLoginAt(): Date
+  +setLastLoginAt(d: Date): void
+  +getCreatedAt(): Date
+}
+
+class Post {
+  -id: string
+  -title: string
+  -content: string
+  -authorId: string
+  -modelName: string
+  -likeCount: int
+  -dislikeCount: int
+  -viewCount: int
+  -createdAt: Date
+  -updatedAt: Date
+  -isDeleted: boolean
+  -category: enum
+  +getId(): string
+  +getTitle(): string
+  +setTitle(title: string): void
+  +getContent(): string
+  +setContent(content: string): void
+  +getAuthorId(): string
+  +getModelName(): string
+  +setModelName(name: string): void
+  +getLikeCount(): int
+  +getDislikeCount(): int
+  +like(): void
+  +dislike(): void
+  +incrementView(): void
+  +softDelete(): void
+  +getCategory(): enum
+  +setCategory(category: enum)
+}
+
+class Comment {
+  -id: string
+  -postId: string
+  -authorId: string
+  -content: string
+  -createdAt: Date
+  -updatedAt: Date
+  +getId(): string
+  +getPostId(): string
+  +getAuthorId(): string
+  +getContent(): string
+  +setContent(content: string): void
+  +getCreatedAt(): Date
+  +getUpdatedAt(): Date
+  +setUpdatedAt(d: Date): void
+}
+
+class Evaluation {
+  -id: string
+  -postId: string
+  -userId: string
+  -type: EvalType
+  +getId(): string
+  +getPostId(): string
+  +getUserId(): string
+  +getType(): EvalType
+  +setType(t: EvalType): void
+}
+
+class Noti {
+  -id: string
+  -title: string
+  -icon: string
+  -description: string
+  -date: Date
+  -isRead: boolean
+  +getId(): string
+  +getTitle(): string
+  +getDescription(): string
+  +getDate(): Date
+  +markAsRead(): void
+  +isRead(): boolean
+}
+
+class AI {
+  -modelName: string
+  +generateText(prompt: string): string
+  +editText(base: string, prompt: string): string
+}
+
+class DB {
+  +select(resource: string, criteria: any): any
+  +insert(resource: string, data: any): any
+  +update(resource: string, id: string, patch: any): any
+  +delete(resource: string, id: string): any
+}
+
+class Auth {
+  -db: DB
+  +signUp(email: string, password: string, nickname: string): User
+  +verifyEmail(email: string, code: string): boolean
+  +signIn(email: string, password: string): string
+  +signOut(): void
+  +reAuth(password: string): boolean
+  +verifyCAPTCHA(): boolean
+  +updateProfile(user: User): void
+}
+
+class PostService {
+  -db: DB
+  -ai: AI
+  +createFromPrompt(authorId: string, title: string, prompt: string): Post
+  +editWithPrompt(postId: string, editorId: string, prompt: string): Post
+  +delete(postId: string, requestorId: string): boolean
+  +getById(id: string): Post
+  +list(filter: any): Post[]
+  +increaseView(postId: string): void
+}
+
+class CommentService {
+  -db: DB
+  -ai: AI
+  +createFromPrompt(postId: string, authorId: string, prompt: string): Comment
+  +editWithPrompt(commentId: string, editorId: string, prompt: string): Comment
+  +delete(commentId: string, requestorId: string): boolean
+}
+
+class EvalService {
+  -db: DB
+  -notiService: NotiService
+  +evaluate(postId: string, userId: string, type: EvalType): Evaluation
+  +delete(id: string): void
+}
+
+class NotiService {
+  -db: DB
+  +sendNoti(noti: Noti): boolean
+  +receiveNoti(noti: Noti): Noti
+  +detectTrigger(): int
+  +markAsRead(noti: Noti): boolean
+  +deleteNoti(noti: Noti): Noti
+}
+
+%% UI (React class components; 'use client')
+class BoardScreen {
+  +render(): void
+  +applyFilter(): void
+}
+
+class PostList {
+  -items: Post[]
+  +getItems(): Post[]
+  +setItems(items: Post[]): void
+  +render(): void
+}
+
+class PostScreen {
+  +postId: string
+  +like(): void
+  +dislike(): void
+  +addComment(prompt: string): void
+}
+
+class PostCreateScreen {
+  +title: string
+  +prompt: string
+  +submit(): void
+}
+
+class SearchBox {
+  +onSubmit(field: SearchField, keyword: string): Post[]
+}
+
+class LoginScreen {
+  -email: string
+  -password: string
+  +submit(email: string, password: string): void
+}
+
+class SignUpScreen {
+  -email: string
+  -password: string
+  -confirmPassword: string
+  -nickname: string
+  +submit(email: string, password: string, confirmPassword: string, nickname: string): void
+}
+
+class UserProfileScreen {
+  +showMyComment(): void
+  +showMyPost(): void
+  +updateMyProfile(): void
+  +showMyLoginHistory(): void
+}
+
+class NotiList {
+  -notiArray: Noti[]
+  +getNotis(): Noti[]
+  +getUnReadNotis(): Noti[]
+}
+
+%% Relationships (domain)
+User "1" -- "*" Post : writes
+User "1" -- "*" Comment : writes
+User "1" -- "*" Evaluation : makes
+User "1" -- "*" Noti : receives
+Post "1" -- "*" Comment : has
+Post "1" -- "*" Evaluation : has
+
+%% Service dependencies
+Auth o-- DB
+PostService o-- DB
+PostService ..> AI
+CommentService o-- DB
+CommentService ..> AI
+EvalService o-- DB
+EvalService ..> NotiService
+NotiService o-- DB
+
+%% UI uses Services / aggregates components
+BoardScreen o-- PostList
+BoardScreen o-- SearchBox
+BoardScreen ..> PostService
+PostList o-- Post
+PostScreen ..> PostService
+PostScreen ..> CommentService
+PostScreen ..> EvalService
+PostCreateScreen ..> PostService
+SearchBox ..> PostService
+LoginScreen ..> Auth
+SignUpScreen ..> Auth
+UserProfileScreen ..> Auth
+NotiList ..> NotiService
