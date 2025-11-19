@@ -57,7 +57,7 @@ export default function PostDetailPage({
       <div className="flex items-center justify-between px-4 py-4">
         <HomeButton />
         <Link
-          href="/posts"
+          href="/board/all"
           className="text-sm text-gray-600 hover:underline"
         >
           목록으로
