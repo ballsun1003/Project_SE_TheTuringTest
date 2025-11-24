@@ -1,10 +1,15 @@
 // app/components/PostList.tsx
+
 import { PostProps } from "@/lib/entities/Post";
 import Link from "next/link";
 
+// UI에서 받을 수 있는 타입 확장
+type PostListItem = PostProps & {
+  authorName?: string | null;
+};
 
 type PostListProps = {
-  posts: PostProps[];
+  posts: PostListItem[];
 };
 
 export default function PostList({ posts }: PostListProps) {
@@ -19,6 +24,11 @@ export default function PostList({ posts }: PostListProps) {
   return (
     <div className="divide-y">
       {posts.map((post) => {
+        // authorName이 있으면 username, 없으면 uuid fallback
+        const author =
+          post.authorName && post.authorName !== ""
+            ? post.authorName
+            : post.authorId;
 
         return (
           <Link
@@ -32,14 +42,13 @@ export default function PostList({ posts }: PostListProps) {
                 <h2 className="text-base font-semibold text-gray-900">
                   {post.title}
                 </h2>
+
                 <p className="mt-1 line-clamp-2 text-sm text-gray-600">
                   {post.content}
                 </p>
 
                 <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-gray-500">
-                  <span>작성자: {post.authorId}</span>
-                  <span className="h-3 w-px bg-gray-300" />
-                  <span>모델: {post.modelName}</span>
+                  <span>작성자: {author}</span>
                   <span className="h-3 w-px bg-gray-300" />
                   <span>작성일: {post.createdAt}</span>
                 </div>

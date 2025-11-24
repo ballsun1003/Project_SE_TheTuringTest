@@ -1,93 +1,27 @@
-// app/board/[category]/page.tsx
+
 import HomeButton from "@/components/homeButton";
 import PostList from "@/components/postList";
 import Link from "next/link";
+import { listPostsByCategory } from "@/lib/postService";
 
-type BoardCategory = "all" | "notice" | "free" | "qna";
-
-const CATEGORY_TABS: { id: BoardCategory; label: string }[] = [
+const CATEGORY_TABS = [
   { id: "all", label: "전체" },
-  { id: "notice", label: "공지" },
   { id: "free", label: "자유" },
+  { id: "share", label: "공유" },
   { id: "qna", label: "Q&A" },
 ];
 
-type Post = {
-  id: string;
-  title: string;
-  content: string;
-  authorId: string;
-  modelName: string;
-  likeCount: number;
-  dislikeCount: number;
-  viewCount: number;
-  createdAt: string;
-  updatedAt: string;
-  isDeleted: boolean;
-  category: BoardCategory;
+type PageProps = {
+  params: { category: string };
 };
 
-// TODO: 실제로는 서버/DB에서 가져올 데이터
-const ALL_POSTS: Post[] = [
-  {
-    id: "1",
-    title: "공지사항 예시입니다.",
-    content: "서비스 이용 관련 안내 공지입니다...",
-    authorId: "admin",
-    modelName: "gpt-5.1-thinking",
-    likeCount: 5,
-    dislikeCount: 0,
-    viewCount: 120,
-    createdAt: "2025-11-18T09:00:00.000Z",
-    updatedAt: "2025-11-18T09:00:00.000Z",
-    isDeleted: false,
-    category: "notice",
-  },
-  {
-    id: "2",
-    title: "자유 게시글 예시",
-    content: "이곳은 자유롭게 이야기를 나누는 공간입니다...",
-    authorId: "user001",
-    modelName: "gpt-4.1-mini",
-    likeCount: 3,
-    dislikeCount: 1,
-    viewCount: 45,
-    createdAt: "2025-11-17T15:30:00.000Z",
-    updatedAt: "2025-11-17T15:30:00.000Z",
-    isDeleted: false,
-    category: "free",
-  },
-  {
-    id: "3",
-    title: "Q&A 예시",
-    content: "로그인 오류가 발생하는데 어떻게 해결하나요?",
-    authorId: "user002",
-    modelName: "gpt-4.1-mini",
-    likeCount: 1,
-    dislikeCount: 0,
-    viewCount: 20,
-    createdAt: "2025-11-16T11:00:00.000Z",
-    updatedAt: "2025-11-16T11:00:00.000Z",
-    isDeleted: false,
-    category: "qna",
-  },
-];
-
-export default function BoardCategoryPage({
-  params,
-}: {
-  params: { category: string };
-}) {
-  const categoryParam = params.category as BoardCategory;
-
-  // 잘못된 카테고리 들어온 경우 대비
+export default async function BoardCategoryPage({ params }: PageProps) {
+  const categoryParam = params.category;
   const validCategory =
     CATEGORY_TABS.find((c) => c.id === categoryParam)?.id ?? "all";
 
-  const filteredPosts =
-    validCategory === "all"
-      ? ALL_POSTS.filter((p) => !p.isDeleted)
-      : ALL_POSTS.filter((p) => p.category === validCategory && !p.isDeleted);
+  // 🔥 실제 DB에서 게시글 불러오기
+  const { posts, error } = await listPostsByCategory(validCategory as any);
 
   return (
     <main className="min-h-screen bg-gray-50">
@@ -128,19 +62,18 @@ export default function BoardCategoryPage({
             {CATEGORY_TABS.find((c) => c.id === validCategory)?.label} 게시판
           </h1>
           <span className="text-sm text-gray-500">
-            총 {filteredPosts.length}개의 글
+            총 {posts?.length ?? 0}개의 글
           </span>
         </div>
 
         <div className="divide-y">
-          {filteredPosts.length === 0 && (
+          {!posts || posts.length === 0 ? (
             <p className="py-8 text-center text-sm text-gray-500">
               이 카테고리에 해당하는 게시글이 없습니다.
             </p>
+          ) : (
+            <PostList posts={posts} />
           )}
-
-            <PostList posts={filteredPosts} />
-
         </div>
       </div>
     </main>

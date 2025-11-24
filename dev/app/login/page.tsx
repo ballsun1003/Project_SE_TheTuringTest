@@ -1,30 +1,57 @@
 "use client";
 
 import HomeButton from "@/components/homeButton";
-// import Link from "next/link"; // 현재 이 파일에서 안 쓰면 지워도 됨
+import Captcha from "@/components/captcha";
 import { FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const router = useRouter();
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const id = formData.get("id");
-    const password = formData.get("password");
-    const captcha = formData.get("captcha");
 
-    console.log({ id, password, captcha });
-    // 여기에서 로그인 API 호출 로직을 추가
+    const id = String(formData.get("id"));
+    const password = String(formData.get("password"));
+    const captcha = String(formData.get("captcha"));
+
+    if (!captcha) {
+      alert("캡챠 인증을 완료해주세요!");
+      return;
+    }
+
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, password, captcha }),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      alert("로그인 실패: " + json.error);
+      return;
+    }
+
+    // 🔥 로그인 성공 → localStorage 저장
+    localStorage.setItem("accessToken", json.accessToken);
+    localStorage.setItem("userId", json.user.id);
+    localStorage.setItem("username", json.user.username);
+
+    alert("로그인 성공!");
+
+    // 메인 페이지로 이동
+    router.push("/");
   };
 
   return (
     <main className="min-h-screen flex flex-col bg-gray-50">
-      {/* 좌상단 홈 버튼 */}
       <div className="p-4">
         <HomeButton className="mr-2" />
       </div>
 
-      {/* 가운데 정렬된 로그인 박스 */}
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-md rounded-2xl border bg-white p-8 shadow">
           <h1 className="mb-6 text-center text-2xl font-bold">Login</h1>
@@ -32,14 +59,10 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* ID */}
             <div>
-              <label
-                htmlFor="id"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label className="block text-sm font-medium text-gray-700">
                 ID
               </label>
               <input
-                id="id"
                 name="id"
                 type="text"
                 required
@@ -50,14 +73,10 @@ export default function LoginPage() {
 
             {/* Password */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <input
-                id="password"
                 name="password"
                 type="password"
                 required
@@ -65,6 +84,9 @@ export default function LoginPage() {
                 placeholder="비밀번호를 입력하세요"
               />
             </div>
+
+            {/* Turnstile Captcha */}
+            <Captcha />
 
             {/* Login 버튼 */}
             <button
@@ -74,7 +96,6 @@ export default function LoginPage() {
               Login
             </button>
           </form>
-          
         </div>
       </div>
     </main>
