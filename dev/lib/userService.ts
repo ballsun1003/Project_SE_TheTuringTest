@@ -137,3 +137,106 @@ export async function getUserStats(userId: string) {
 
   return { postCount, totalLikes, totalDislikes };
 }
+
+
+//
+// 4. 회원 정보 수정
+//
+export async function updateUserInfo(
+  userId: string,
+  newUsername: string,
+  currentPassword?: string | null,
+  newPassword?: string | null
+): Promise<{ error?: string }> {
+  
+  // 루트 계정 보호
+  if (userId === ROOT_USER_ID) {
+    return { error: "Root user cannot be modified." };
+  }
+
+  // 사용자 조회
+  const { data: row, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (error || !row) return { error: "User not found." };
+
+  // username 중복 체크 (자기 자신 제외)
+  const { data: duplicate } = await supabase
+    .from("users")
+    .select("id")
+    .eq("username", newUsername)
+    .neq("id", userId)
+    .maybeSingle();
+
+  if (duplicate) return { error: "Username already exists." };
+
+  const updates: any = { username: newUsername };
+
+  // 비밀번호 변경 요청이 있는 경우
+  if (newPassword) {
+    if (!currentPassword) {
+      return { error: "Current password is required." };
+    }
+
+    const validPw = await bcrypt.compare(currentPassword, row.password_hash);
+    if (!validPw) {
+      return { error: "Current password is incorrect." };
+    }
+
+    const hash = await bcrypt.hash(newPassword, 10);
+    updates.password_hash = hash;
+  }
+
+  // 업데이트 실행
+  const { error: errUpdate } = await supabase
+    .from("users")
+    .update(updates)
+    .eq("id", userId);
+
+  if (errUpdate) return { error: "Update failed." };
+
+  return {};
+}
+
+//
+// 5. 회원 탈퇴: 전체 데이터 삭제
+//
+export async function deleteUserAndData(userId: string): 
+Promise<{ error?: string }> {
+
+  if (userId === ROOT_USER_ID) {
+    return { error: "Root user cannot be deleted." };
+  }
+
+  try {
+    // 댓글 삭제
+    await supabase.from("comments").delete().eq("author_id", userId);
+
+    // 좋아요/싫어요 삭제
+    await supabase.from("reactions").delete().eq("user_id", userId);
+
+    // 알림 삭제
+    await supabase.from("notifications").delete().eq("to_user_id", userId);
+    await supabase.from("notifications").delete().eq("from_user_id", userId);
+
+    // 게시글 삭제 (is_deleted true 로 처리 or 완전 삭제)
+    await supabase.from("posts").delete().eq("author_id", userId);
+
+    // 유저 삭제
+    const { error } = await supabase
+      .from("users")
+      .delete()
+      .eq("id", userId);
+
+    if (error) return { error: "Account delete failed." };
+
+    return {};
+
+  } catch (e) {
+    console.error(e);
+    return { error: "Database error occurred." };
+  }
+}

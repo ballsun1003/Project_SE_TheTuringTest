@@ -45,7 +45,7 @@ export default function BoardPreview() {
   return (
     <div className="rounded-xl border bg-white p-6">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-lg font-semibold">최근 게시글</h3>
+        <h3 className="text-lg font-semibold">인기 게시글</h3>
         <Link
           href="/board/all"
           className="text-xs text-gray-500 hover:underline"
