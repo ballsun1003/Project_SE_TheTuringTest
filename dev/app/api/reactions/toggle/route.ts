@@ -4,12 +4,12 @@ import { toggleReaction } from "@/lib/reactionService";
 export async function POST(req: Request) {
   try {
     const { postId, userId, type } = await req.json();
-
-    if (!postId || !userId || !type) {
+    const finalUserId = userId ?? "00000000-0000-0000-0000-000000000000";
+    if (!postId || !finalUserId || !type) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    const result = await toggleReaction(postId, userId, type);
+    const result = await toggleReaction(postId, finalUserId, type);
 
     if (result.error) {
       return NextResponse.json({ error: result.error }, { status: 500 });

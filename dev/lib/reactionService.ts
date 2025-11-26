@@ -1,5 +1,6 @@
 // lib/reactionService.ts
 import { supabase } from "./supabaseClient";
+import { createNotification } from "./notificationService"; // 🔥 추가됨
 
 /**
  * toggleReaction
@@ -20,7 +21,27 @@ export async function toggleReaction(
   error?: string;
 }> {
   try {
-    // 1) Supabase RPC 호출
+    // ===========================================
+    // 1) 게시글 작성자 ID 가져오기 (알림 보내기 위함)
+    // ===========================================
+    const { data: postData, error: postErr } = await supabase
+      .from("posts")
+      .select("author_id")
+      .eq("id", postId)
+      .single();
+
+    if (postErr || !postData) {
+      return { error: "Post not found" };
+    }
+
+    const postAuthorId = postData.author_id;
+
+    // 자기 글이면 알림 보내지 않음
+    const shouldSendNotification = userId !== postAuthorId;
+
+    // ===========================================
+    // 2) Supabase RPC 호출 (기존 코드 그대로 유지)
+    // ===========================================
     const { data, error } = await supabase.rpc("toggle_post_reaction", {
       p_post_id: postId,
       p_user_id: userId,
@@ -32,12 +53,42 @@ export async function toggleReaction(
       return { error: "Failed to toggle reaction" };
     }
 
-    // data = { like_count: ..., dislike_count: ..., user_reaction: ... }
+    const newReaction = data.user_reaction; 
+    // 값: "like" | "dislike" | null
+
+    // ===========================================
+    // 3) 알림 생성 (좋아요/싫어요 눌렀을 때만)
+    // ===========================================
+    // if (shouldSendNotification && newReaction) {
+    //   await createNotification(
+    //     postAuthorId, // toUser
+    //     userId,       // fromUser
+    //     postId,
+    //     newReaction   // "like" 또는 "dislike"
+    //   );
+    // }
+    // ===========================================
+// 3) 알림 생성 (좋아요/싫어요 눌렀을 때 무조건)
+// ===========================================
+if (shouldSendNotification) {
+  await createNotification(
+    postAuthorId,   // toUser
+    userId,         // fromUser
+    postId,
+    type            // "like" 또는 "dislike"
+  );
+}
+
+
+    // ===========================================
+    // 4) 프론트로 반환
+    // ===========================================
     return {
       likeCount: data.like_count,
       dislikeCount: data.dislike_count,
       userReaction: data.user_reaction,
     };
+
   } catch (err) {
     console.error("toggleReaction error:", err);
     return { error: "Server error" };
@@ -63,7 +114,8 @@ export async function getUserReaction(
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (error) return { error: "Failed to load user reaction", reaction: null };
+    if (error)
+      return { error: "Failed to load user reaction", reaction: null };
 
     return { reaction: data?.reaction ?? null };
   } catch (err) {
