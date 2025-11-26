@@ -2,6 +2,7 @@
 
 import { supabase } from "./supabaseClient";
 import { Post, mapDBPost, BoardCategory } from "./entities/Post";
+import { ROOT_USER_ID } from "./userService";
 
 export type PostWithAuthor = Post & { authorName: string | null };
 
@@ -144,8 +145,32 @@ export async function increaseViewCount(postId: string) {
 /* =========================
    8. 게시글 삭제 (Soft Delete)
    ========================= */
+// export async function deletePost(postId: string, authorId: string) {
+//   // 본인 글인지 체크
+//   const { data: post, error: e1 } = await supabase
+//     .from("posts")
+//     .select("author_id")
+//     .eq("id", postId)
+//     .single();
+
+//   if (e1 || !post) return { error: "Post not found" };
+//   if (post.author_id !== authorId) return { error: "Not authorized" };
+
+//   // 삭제 처리
+//   const { error } = await supabase
+//     .from("posts")
+//     .update({
+//       is_deleted: true,
+//       updated_at: new Date().toISOString(),
+//     })
+//     .eq("id", postId);
+
+//   if (error) return { error: "Failed to delete post" };
+//   return { success: true };
+// }
+
+
 export async function deletePost(postId: string, authorId: string) {
-  // 본인 글인지 체크
   const { data: post, error: e1 } = await supabase
     .from("posts")
     .select("author_id")
@@ -153,9 +178,12 @@ export async function deletePost(postId: string, authorId: string) {
     .single();
 
   if (e1 || !post) return { error: "Post not found" };
-  if (post.author_id !== authorId) return { error: "Not authorized" };
 
-  // 삭제 처리
+  // 🔥 루트 권한: 다른 사람 글도 삭제 가능
+  if (authorId !== ROOT_USER_ID && post.author_id !== authorId) {
+    return { error: "Not authorized" };
+  }
+
   const { error } = await supabase
     .from("posts")
     .update({
@@ -167,6 +195,7 @@ export async function deletePost(postId: string, authorId: string) {
   if (error) return { error: "Failed to delete post" };
   return { success: true };
 }
+
 
 /* =========================
    9. 전체 수정 API (제목 + 본문)

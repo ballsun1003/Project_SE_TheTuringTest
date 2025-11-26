@@ -3,6 +3,8 @@
 import { supabase } from "./supabaseClient";
 import { Comment, mapDBComment } from "./entities/Comment";
 
+
+import { ROOT_USER_ID } from "./userService";
 // username 포함된 타입
 export type CommentWithAuthor = Comment & {
   authorName: string | null;
@@ -121,12 +123,38 @@ export async function listCommentsByPostId(postId: string) {
 /* ============================================================
    5. 댓글 삭제 (작성자 본인만 가능)
    ============================================================ */
-export async function deleteComment(
-  commentId: string,
-  userId: string
-): Promise<{ success?: boolean; error?: string }> {
+// export async function deleteComment(
+//   commentId: string,
+//   userId: string
+// ): Promise<{ success?: boolean; error?: string }> {
 
-  // 1) 기존 댓글 체크
+//   // 1) 기존 댓글 체크
+//   const { data: oldComment, error: findErr } = await supabase
+//     .from("comments")
+//     .select("author_id")
+//     .eq("id", commentId)
+//     .single();
+
+//   if (findErr || !oldComment) return { error: "Comment not found." };
+
+//   // 2) 작성자 검증
+//   if (oldComment.author_id !== userId) {
+//     return { error: "Not authorized to delete comment." };
+//   }
+
+//   // 3) 삭제 처리
+//   const { error } = await supabase
+//     .from("comments")
+//     .delete()
+//     .eq("id", commentId);
+
+//   if (error) return { error: "Failed to delete comment." };
+
+//   return { success: true };
+// }
+
+
+export async function deleteComment(commentId: string, userId: string) {
   const { data: oldComment, error: findErr } = await supabase
     .from("comments")
     .select("author_id")
@@ -135,18 +163,16 @@ export async function deleteComment(
 
   if (findErr || !oldComment) return { error: "Comment not found." };
 
-  // 2) 작성자 검증
-  if (oldComment.author_id !== userId) {
+  // 🔥 루트 권한: 다른 사람 댓글도 삭제 허용
+  if (userId !== ROOT_USER_ID && oldComment.author_id !== userId) {
     return { error: "Not authorized to delete comment." };
   }
 
-  // 3) 삭제 처리
   const { error } = await supabase
     .from("comments")
     .delete()
     .eq("id", commentId);
 
   if (error) return { error: "Failed to delete comment." };
-
   return { success: true };
 }

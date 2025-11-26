@@ -3,6 +3,7 @@ import HomeButton from "@/components/homeButton";
 import PostList from "@/components/postList";
 import Link from "next/link";
 import { listPostsByCategory } from "@/lib/postService";
+import ProtectedLink from "@/components/ProtectedLink";
 
 const CATEGORY_TABS = [
   { id: "all", label: "전체" },
@@ -28,12 +29,12 @@ export default async function BoardCategoryPage({ params }: PageProps) {
       {/* 상단 바 */}
       <div className="flex items-center justify-between px-4 py-4">
         <HomeButton />
-        <Link
+        <ProtectedLink
           href="/postCreate"
           className="inline-flex items-center rounded-lg bg-black px-4 py-2 font-medium text-white hover:opacity-90"
         >
           글 작성하기
-        </Link>
+        </ProtectedLink>
       </div>
 
       {/* 카테고리 탭 */}

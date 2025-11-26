@@ -4,6 +4,8 @@ import { verifyTurnstile } from "./captchaService";
 import bcrypt from "bcryptjs";
 import { User, mapDBUser } from "./entities/User";
 
+export const ROOT_USER_ID =
+  "00000000-0000-0000-0000-000000000001";
 
 //
 // 1. 회원가입
