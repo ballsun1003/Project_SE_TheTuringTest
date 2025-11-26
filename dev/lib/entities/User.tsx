@@ -32,6 +32,9 @@ export class User {
   getCreatedAt() {
     return this.createdAt;
   }
+  getLastLogin() {
+  return this.lastLogin;
+}
 
   // setters (필요하면)
   setUsername(username: string) {
