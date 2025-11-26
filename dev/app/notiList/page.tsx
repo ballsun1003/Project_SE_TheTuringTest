@@ -165,7 +165,7 @@ export default function NotificationsPage() {
   return (
     <main className="min-h-screen bg-gray-50">
       {/* 상단 */}
-      <div className="flex items-center justify-between px-4 py-4">
+      <div className="flex items-center justify-between px-4 py-4 text-gray-900">
         <HomeButton />
         <span className="text-xs text-gray-500">
           총 {notifications.length}개의 알림
@@ -174,7 +174,7 @@ export default function NotificationsPage() {
 
       {/* 본문 */}
       <div className="mx-auto mb-12 w-full max-w-2xl rounded-2xl border bg-white p-6 shadow-sm">
-        <h1 className="text-xl font-bold mb-4">알림</h1>
+        <h1 className="text-xl font-bold mb-4 text-gray-900">알림</h1>
 
         {notifications.length === 0 && (
           <p className="py-10 text-center text-sm text-gray-500">

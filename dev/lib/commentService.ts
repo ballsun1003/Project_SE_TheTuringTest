@@ -176,3 +176,15 @@ export async function deleteComment(commentId: string, userId: string) {
   if (error) return { error: "Failed to delete comment." };
   return { success: true };
 }
+// 유저따라 댓글 리스트 불러오기
+export async function listCommentsByUser(userId: string) {
+  const { data, error } = await supabase
+    .from("comments")
+    .select("*, post:post_id(title)")
+    .eq("author_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error || !data) return { error: "Failed to load comments by user" };
+
+  return { comments: data };
+}

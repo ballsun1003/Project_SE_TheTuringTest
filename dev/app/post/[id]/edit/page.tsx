@@ -277,7 +277,7 @@ export default function EditPostPage({ params }: { params: { id: string } }) {
           onClick={handleUpdateMeta}
           className="px-4 py-2 bg-blue-500 text-white rounded-md"
         >
-          메타데이터 수정
+          제목 및 카테고리 수정하기
         </button>
 
         <hr className="my-6" />

@@ -449,24 +449,57 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
     if (json.reaction) setReaction(json.reaction);
   }
 
+  // async function handleReaction(type: "like" | "dislike") {
+  //   if (!userId) return alert("로그인이 필요합니다.");
+
+  //   const res = await fetch("/api/reactions/toggle", {
+  //     method: "POST",
+  //     body: JSON.stringify({ postId: id, userId, type }),
+  //   });
+
+  //   const json = await res.json();
+  //   if (json.error) return alert(json.error);
+
+  //   setPost((prev: any) => ({
+  //     ...prev,
+  //     likeCount: json.likeCount ?? json.like_count,
+  //     dislikeCount: json.dislikeCount ?? json.dislike_count,
+  //   }));
+  //   setReaction(json.userReaction);
+  // }
   async function handleReaction(type: "like" | "dislike") {
-    if (!userId) return alert("로그인이 필요합니다.");
+  if (!userId) return alert("로그인이 필요합니다.");
 
-    const res = await fetch("/api/reactions/toggle", {
-      method: "POST",
-      body: JSON.stringify({ postId: id, userId, type }),
-    });
+  const res = await fetch("/api/reactions/toggle", {
+    method: "POST",
+    body: JSON.stringify({ postId: id, userId, type }),
+  });
 
-    const json = await res.json();
-    if (json.error) return alert(json.error);
+  const json = await res.json();
+  if (json.error) return alert(json.error);
 
-    setPost((prev: any) => ({
-      ...prev,
-      likeCount: json.likeCount ?? json.like_count,
-      dislikeCount: json.dislikeCount ?? json.dislike_count,
-    }));
-    setReaction(json.userReaction);
-  }
+  setPost((prev: any) => ({
+    ...prev,
+    likeCount:
+      json.likeCount ??
+      json.like_count ??
+      (prev?.likeCount ?? prev?.like_count ?? 0),
+    dislikeCount:
+      json.dislikeCount ??
+      json.dislike_count ??
+      (prev?.dislikeCount ?? prev?.dislike_count ?? 0),
+  }));
+
+  // 서버가 userReaction 안 보내면, 이전 상태 기준으로 토글
+  setReaction(
+    json.userReaction !== undefined
+      ? json.userReaction
+      : reaction === type
+      ? null
+      : type
+  );
+}
+
 
   async function loadComments() {
     const res = await fetch("/api/comments/list", {
