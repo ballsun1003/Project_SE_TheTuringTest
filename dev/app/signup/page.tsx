@@ -41,11 +41,11 @@ export default function SignPage() {
   return (
     <main className="min-h-screen flex flex-col bg-gray-50">
       <div className="p-4">
-        <HomeButton className="mr-2" />
+        <HomeButton className="mr-2 text-gray-900" />
       </div>
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-md rounded-2xl border bg-white p-8 shadow">
-          <h1 className="text-2xl font-bold text-center mb-6">Sign Up</h1>
+          <h1 className="text-2xl font-bold text-center mb-6 text-gray-900">Sign Up</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* ID */}
@@ -58,7 +58,7 @@ export default function SignPage() {
                 name="id"
                 type="text"
                 required
-                className="mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-black focus:ring-1 focus:ring-black"
+                className="mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-black focus:ring-1 focus:ring-black text-gray-900"
                 placeholder="아이디를 입력하세요"
               />
             </div>
@@ -73,7 +73,7 @@ export default function SignPage() {
                 name="password"
                 type="password"
                 required
-                className="mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-black focus:ring-1 focus:ring-black"
+                className="mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-black focus:ring-1 focus:ring-black text-gray-900"
                 placeholder="비밀번호를 입력하세요"
               />
             </div>

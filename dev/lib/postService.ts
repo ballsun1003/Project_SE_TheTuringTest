@@ -228,3 +228,27 @@ export async function updatePost(postId: string, authorId: string, newTitle: str
   if (error || !data) return { error: "Failed to update post" };
   return { post: mapPostWithAuthor(data) };
 }
+
+export async function listTopLikedPosts(limit: number = 3) {
+  const { data, error } = await supabase
+    .from("posts")
+    .select("*, author:author_id(username)")
+    .eq("is_deleted", false)
+    .order("like_count", { ascending: false })
+    .limit(limit);
+
+  if (error || !data) return { posts: [] };
+
+  return {
+    posts: data.map((row) => ({
+      id: row.id,
+      title: row.title,
+      content: row.content,
+      authorName: row.author?.username ?? "익명",
+      likeCount: row.like_count ?? 0,
+      category: row.category,
+      createdAt: row.created_at,
+    })),
+  };
+}
+
