@@ -3,41 +3,54 @@
 import Captcha from "@/components/captcha";
 import HomeButton from "@/components/homeButton";
 import { FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 export default function SignPage() {
+  const router = useRouter();
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const id = formData.get("id");
-    const password = formData.get("password");
-    const captcha = formData.get("captcha");
 
-    console.log({ id, password, captcha });
-    // TODO: 여기에서 실제 회원가입 로직(서버 요청 등) 추가
+    console.log("FormData captcha:", formData.get("captcha")); // 확인용
+
+    const id = String(formData.get("id"));
+    const password = String(formData.get("password"));
+    const captcha = String(formData.get("captcha"));
+
+    const res = await fetch("/api/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id, password, captcha }),
+    });
+
+    const json = await res.json();
+
+    if (res.ok) {
+      alert("회원가입 성공!");
+      router.push("/login");
+    } else {
+      alert("회원가입 실패: " + json.error);
+    }
+    console.log("FormData Captcha:", formData.get("captcha"));
+
+
   };
-
-
-
-  
 
   return (
     <main className="min-h-screen flex flex-col bg-gray-50">
       <div className="p-4">
-        <HomeButton className="mr-2" />
+        <HomeButton className="mr-2 text-gray-900" />
       </div>
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-md rounded-2xl border bg-white p-8 shadow">
-          <h1 className="text-2xl font-bold text-center mb-6">Sign Up</h1>
+          <h1 className="text-2xl font-bold text-center mb-6 text-gray-900">Sign Up</h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* ID */}
             <div>
-              <label
-                htmlFor="id"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label className="block text-sm font-medium text-gray-700">
                 ID
               </label>
               <input
@@ -45,17 +58,14 @@ export default function SignPage() {
                 name="id"
                 type="text"
                 required
-                className="mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-black focus:ring-1 focus:ring-black"
+                className="mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-black focus:ring-1 focus:ring-black text-gray-900"
                 placeholder="아이디를 입력하세요"
               />
             </div>
 
             {/* Password */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <input
@@ -63,13 +73,13 @@ export default function SignPage() {
                 name="password"
                 type="password"
                 required
-                className="mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-black focus:ring-1 focus:ring-black"
+                className="mt-1 w-full rounded-md border px-3 py-2 text-sm outline-none focus:border-black focus:ring-1 focus:ring-black text-gray-900"
                 placeholder="비밀번호를 입력하세요"
               />
             </div>
 
-            {/* Captcha */}
-            
+            {/* 🔥 Captcha 반드시 form 내부 */}
+            <Captcha />
 
             {/* Sign Up 버튼 */}
             <button
@@ -78,7 +88,6 @@ export default function SignPage() {
             >
               Sign Up
             </button>
-            <Captcha/>
           </form>
         </div>
       </div>
