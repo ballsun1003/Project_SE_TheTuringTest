@@ -1,6 +1,56 @@
 // lib/reactionService.ts
 import { supabase } from "./supabaseClient";
 import { createNotification } from "./notificationService"; // 🔥 추가됨
+/**
+ * ======================================================
+ * Reaction Service (reactionService.ts)
+ * ======================================================
+ * 게시글에 대한 좋아요 / 싫어요 반응 처리 기능을 제공한다.
+ * Supabase RPC를 이용하여 자동으로 반응 상태 변경 및
+ * 게시글의 좋아요/싫어요 카운트를 관리한다.
+ *
+ * 주요 기능
+ * ------------------------------------------------------
+ * 1. toggleReaction(postId, userId, type)
+ *    - 유저의 좋아요/싫어요 요청 처리
+ *    - Supabase RPC("toggle_post_reaction") 호출
+ *      → 기존 상태에 따라 자동으로 다음 중 하나 적용
+ *        ✔ 좋아요 추가
+ *        ✔ 싫어요 추가
+ *        ✔ 반응 변경 (좋아요 ↔ 싫어요)
+ *        ✔ 반응 취소 (이미 누른 버튼을 다시 누른 경우)
+ *    - 게시글 작성자가 아닌 경우 알림(notification) 생성
+ *    - 처리 후 최신 like_count / dislike_count /
+ *      사용자 반응 상태(userReaction) 반환
+ *    - 오류 발생 시 에러 메시지 반환
+ *
+ * 2. getUserReaction(postId, userId)
+ *    - post_reactions 테이블에서
+ *      해당 유저가 남긴 반응 조회
+ *    - UI가 사용자 반응 표시(하이라이트 등)에 활용
+ *
+ *
+ * 연관 DB 요소
+ * ------------------------------------------------------
+ * - posts 테이블 (author 조회 및 count 반영)
+ * - post_reactions 테이블 (사용자 반응 기록)
+ * - notifications 테이블 (타인의 게시글에 반응 시 알림 생성)
+ *
+ *
+ * 오류 처리 정책
+ * ------------------------------------------------------
+ * - 게시글 미존재 → "Post not found"
+ * - RPC 실패 → "Failed to toggle reaction"
+ * - 일반 예외 → "Server error"
+ *
+ *
+ * 목적:
+ * ------------------------------------------------------
+ * 좋아요/싫어요 기능을 단일 함수에서 처리하도록 하여
+ * UI 상의 즉각적 반영 및 알림 시스템과 연동한다.
+ * ======================================================
+ */
+
 
 /**
  * toggleReaction

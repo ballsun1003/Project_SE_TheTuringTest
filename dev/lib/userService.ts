@@ -4,6 +4,62 @@ import { verifyTurnstile } from "./captchaService";
 import bcrypt from "bcryptjs";
 import { User, mapDBUser } from "./entities/User";
 
+/**
+ * ================================================
+ * 🧩 User Service (userService.ts)
+ * ================================================
+ * 본 서비스 모듈은 사용자 인증 및 계정 관리를 위한
+ * 핵심 비즈니스 로직을 포함한다.
+ *
+ * 주요 기능:
+ * 1️⃣ 회원가입 (signUpUser)
+ *  - Turnstile 캡차 검증을 통해 봇 가입 방지
+ *  - 사용자명 중복 확인
+ *  - bcrypt 기반 비밀번호 해싱
+ *  - Supabase users 테이블에 신규 사용자 등록
+ *
+ * 2️⃣ 로그인 (loginUser)
+ *  - Turnstile 검증
+ *  - 사용자명으로 DB에서 사용자 조회
+ *  - bcrypt 해싱값과 비교하여 비밀번호 인증
+ *  - 로그인 성공 시 마지막 로그인 시간 갱신
+ *  - 결과로 사용자 데이터 및 Access Token(유저 ID 기반) 반환
+ *
+ * 3️⃣ 현재 로그인 유저 조회 (getCurrentUser)
+ *  - Access Token(유저 ID)을 기반으로 사용자 정보 반환
+ *
+ * 4️⃣ 사용자 통계 조회 (getUserStats)
+ *  - 유저가 작성한 게시글 기반으로
+ *    총 게시글 수, 총 좋아요 수, 총 싫어요 수 계산
+ *
+ * 5️⃣ 사용자 계정 정보 수정 (updateUserInfo)
+ *  - 루트 계정 수정 방지
+ *  - 사용자명 중복 검사 (본인 제외)
+ *  - 비밀번호 변경 시 기존 비밀번호 검증 필수
+ *  - Supabase users 테이블 업데이트
+ *
+ * 6️⃣ 회원 탈퇴 및 모든 관련 데이터 삭제 (deleteUserAndData)
+ *  - 루트 계정 삭제 방지
+ *  - 사용자 게시글/댓글/반응/알림 등 모든 데이터 삭제
+ *  - 마지막으로 사용자 데이터 삭제
+ *
+ * 보안/정책 사항:
+ * - 루트 계정 보호(수정 및 삭제 금지)
+ * - 비밀번호는 평문 저장 금지 → bcrypt 해싱 필수
+ * - 캡차 검증 필수 적용(회원가입 및 로그인)
+ *
+ * 관련 테이블:
+ * - users
+ * - posts
+ * - comments
+ * - post_reactions
+ * - notifications
+ *
+ * 이 모듈은 UI 계층, 라우터 계층에서 재사용 가능하도록
+ * 데이터베이스 접근과 인증 로직을 캡슐화한다.
+ * ================================================
+ */
+
 export const ROOT_USER_ID =
   "00000000-0000-0000-0000-000000000001";
 

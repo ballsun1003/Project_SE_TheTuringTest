@@ -1,124 +1,49 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import BoardPreview from "@/components/boardPreview";
-// import HomeButton from "@/components/homeButton";
-// import ProtectedLink from "@/components/ProtectedLink";
-// import Link from "next/link";
-// import { useRouter } from "next/navigation";
-
-// export default function HomePage() {
-//   const router = useRouter();
-
-//   const [isLoggedIn, setIsLoggedIn] = useState(false);
-//   const [username, setUsername] = useState<string | null>(null);
-
-//   useEffect(() => {
-//     const token = localStorage.getItem("accessToken");
-//     const name = localStorage.getItem("username");
-
-//     if (token) {
-//       setIsLoggedIn(true);
-//       setUsername(name);
-//     }
-//   }, []);
-
-//   const handleLogout = () => {
-//     localStorage.removeItem("accessToken");
-//     localStorage.removeItem("userId");
-//     localStorage.removeItem("username");
-
-//     setIsLoggedIn(false);
-//     setUsername(null);
-
-//     alert("로그아웃 되었습니다.");
-//     router.push("/");
-//   };
-
-//   return (
-//     <section className="space-y-6 m-10">
-//       <div>
-//         <HomeButton className="mr-2" />
-
-//         <header className="flex items-center justify-between">
-//           <div>
-//             <p className="mt-2 text-gray-600">The Turing Test</p>
-//           </div>
-
-//           {/* 🔽 로그인 여부에 따라 UI 변경 */}
-//           {isLoggedIn ? (
-//             <div className="flex items-center gap-3 text-sm text-gray-600">
-//               <span className="font-medium">{username}</span> 님 환영합니다!
-
-//               {/* 🔥 로그아웃 버튼 */}
-//               <button
-//                 onClick={handleLogout}
-//                 className="px-3 py-1 rounded border text-black hover:bg-gray-100"
-//               >
-//                 Logout
-//               </button>
-//             </div>
-//           ) : (
-//             <div className="flex justify-end gap-2">
-//               <Link href="/login">
-//                 <button className="px-4 py-2 rounded border text-black hover:bg-gray-100">
-//                   Login
-//                 </button>
-//               </Link>
-
-//               <Link href="/signup">
-//                 <button className="px-4 py-2 rounded bg-black text-white">
-//                   Sign up
-//                 </button>
-//               </Link>
-//             </div>
-//           )}
-//         </header>
-//       </div>
-
-//       {/* 메인 기능 버튼 */}
-//       <div className="flex gap-3">
-//         <Link
-//           href="/board/all"
-//           className="inline-flex items-center rounded-lg border px-4 py-2 hover:bg-gray-100"
-//         >
-//           게시판 보기
-//         </Link>
-
-//         <ProtectedLink
-//           href="/postCreate"
-//           className="inline-flex items-center rounded-lg bg-black px-4 py-2 font-medium text-white hover:opacity-90"
-//         >
-//           글 작성하기
-//         </ProtectedLink>
-//       </div>
-
-//       {/* 테스트 링크 */}
-//       <div className="flex flex-wrap gap-3 text-sm">
-//         <ProtectedLink
-//           href="/userProfile/1"
-//           className="inline-flex items-center rounded-lg border px-3 py-2 hover:bg-gray-100"
-//         >
-//           프로필
-//         </ProtectedLink>
-
-//         <ProtectedLink
-//           href="/notiList"
-//           className="inline-flex items-center rounded-lg border px-3 py-2 hover:bg-gray-100"
-//         >
-//           알림 목록
-//         </ProtectedLink>
-//       </div>
-
-//       <BoardPreview />
-//     </section>
-//   );
-// }
 import BoardPreview from "@/components/boardPreview";
 import HomeButton from "@/components/homeButton";
 import ProtectedLink from "@/components/ProtectedLink";
 import AuthHeader from "@/components/AuthHeader";
 import Link from "next/link";
+
+/**
+ * ======================================================
+ * HomePage (메인 화면)
+ * ======================================================
+ * 사용자 로그인 여부에 따라 접근 가능한 메뉴가 달라지는
+ * 서비스의 진입점 UI를 제공하는 컴포넌트.
+ *
+ * 구성 요소
+ * ------------------------------------------------------
+ * - HomeButton : 사이트 타이틀 버튼 ("/" 이동)
+ * - AuthHeader : 로그인/로그아웃 UI 표시
+ * - ProtectedLink : 로그인 필요 기능 보호 (글작성 / 프로필 / 알림)
+ * - BoardPreview : 좋아요 상위 게시글 요약 목록
+ *
+ * 주요 역할
+ * ------------------------------------------------------
+ * 1. 게시판으로 이동할 수 있는 네비게이션 제공
+ * 2. 로그인 사용자에게만 글 작성 / 프로필 / 알림 접근 허용
+ * 3. 인기 게시글 미리보기로 최신 활동 제공
+ *
+ * UX 특징
+ * ------------------------------------------------------
+ * - 헤더 우측에서 인증 상태가 즉시 반영(AuthHeader)
+ * - ProtectedLink를 통해 로그인 흐름 자연 유도
+ * - 메인 기능을 바로 탐색할 수 있는 단순 인터페이스
+ *
+ * 관련 라우팅
+ * ------------------------------------------------------
+ * - /board/all : 전체 게시판 목록
+ * - /postCreate : 게시글 생성 페이지 (로그인 필요)
+ * - /userProfile/me : 내 프로필 (로그인 필요)
+ * - /notiList : 알림 목록 (로그인 필요)
+ *
+ * 사용 대상 문서
+ * ------------------------------------------------------
+ * - UI 설계서
+ * - SDS: 기능 흐름도 (ProtectedLink 인증 흐름)
+ * ======================================================
+ */
+
 
 export default function HomePage() {
 
@@ -144,7 +69,7 @@ export default function HomePage() {
 
         <ProtectedLink
           href="/postCreate"
-          className="inline-flex items-center rounded-lg bg-black px-4 py-2 font-medium text-white hover:opacity-90"
+          className="inline-flex items-center rounded-lg border px-4 py-2 hover:bg-gray-100"
         >
           글 작성하기
         </ProtectedLink>
