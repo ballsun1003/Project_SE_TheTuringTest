@@ -3,6 +3,78 @@
 import { supabase } from "./supabaseClient";
 import { Post, mapDBPost, BoardCategory } from "./entities/Post";
 import { ROOT_USER_ID } from "./userService";
+/**
+ * ======================================================
+ * Post Service (postService.ts)
+ * ======================================================
+ * 게시글에 대한 CRUD 기능과 조회 및 정렬 기능을 제공한다.
+ * Supabase posts 테이블을 기반으로 동작하며
+ * 작성자(username) 정보를 join하여 함께 반환한다.
+ *
+ * 주요 기능
+ * ------------------------------------------------------
+ * 1. createPost(authorId, title, prompt, category)
+ *    - 신규 게시글 생성 (AI 생성할 내용을 위한 prompt 저장)
+ *    - content는 초기값 비어있는 문자열("")로 저장
+ *    - like_count, dislike_count, view_count 기본 0 설정
+ *    - is_deleted = false 로 생성
+ *
+ * 2. updatePostContent(postId, newContent, updatedPrompt?)
+ *    - AI 생성 본문(content) 갱신
+ *    - updated_prompt 저장 가능
+ *    - updated_at 자동 갱신
+ *
+ * 3. updatePostMeta(postId, title, category)
+ *    - 제목 및 카테고리 변경
+ *    - updated_at 갱신
+ *
+ * 4. getPostById(postId)
+ *    - 단일 게시글 조회
+ *    - is_deleted = false 조건 적용
+ *
+ * 5. listPostsByCategory(category)
+ *    - 카테고리별 최신 게시글 목록 조회
+ *    - "all"이면 전체 조회
+ *    - 삭제되지 않은 게시글만
+ *
+ * 6. listPostsByUser(userId)
+ *    - 특정 사용자가 작성한 게시글 목록 조회
+ *    - 최신순 정렬
+ *
+ * 7. increaseViewCount(postId)
+ *    - 조회수 증가를 위한 Supabase RPC 호출
+ *    - 오류 발생 시 실패 반환
+ *
+ * 8. deletePost(postId, authorId)
+ *    - Soft Delete 방식: is_deleted = true 업데이트
+ *    - 작성자 본인 또는 ROOT 계정만 삭제 가능
+ *    - updated_at 갱신
+ *
+ * 9. updatePost(postId, authorId, newTitle, newContent, updatedPrompt?)
+ *    - 제목 + 본문 + AI 프롬프트 통합 수정
+ *    - 본인 글인 경우에만 수정 허용
+ *    - updated_at 갱신
+ *
+ * 10. listTopLikedPosts(limit)
+ *    - 좋아요 수(like_count) 기준 내림차순 정렬
+ *    - 기본 3개 반환
+ *    - is_deleted = false 조건 적용
+ *
+ *
+ * 공통 처리 요소
+ * ------------------------------------------------------
+ * - Author 이름을 author:author_id(username) join하여 함께 반환
+ * - Soft Delete 정책: 실제 삭제 대신 is_deleted 로 필터링
+ * - 오류 발생 시 명확한 에러 메시지 반환
+ *
+ *
+ * 목적
+ * ------------------------------------------------------
+ * 게시글 등록 → AI 생성 본문 반영 → 목록/조회 → 수정/삭제 흐름을
+ * 하나의 서비스 레이어로 관리하도록 설계되었다.
+ * ======================================================
+ */
+
 
 export type PostWithAuthor = Post & { authorName: string | null };
 
@@ -142,32 +214,7 @@ export async function increaseViewCount(postId: string) {
   return { post: mapDBPost(data) };
 }
 
-/* =========================
-   8. 게시글 삭제 (Soft Delete)
-   ========================= */
-// export async function deletePost(postId: string, authorId: string) {
-//   // 본인 글인지 체크
-//   const { data: post, error: e1 } = await supabase
-//     .from("posts")
-//     .select("author_id")
-//     .eq("id", postId)
-//     .single();
 
-//   if (e1 || !post) return { error: "Post not found" };
-//   if (post.author_id !== authorId) return { error: "Not authorized" };
-
-//   // 삭제 처리
-//   const { error } = await supabase
-//     .from("posts")
-//     .update({
-//       is_deleted: true,
-//       updated_at: new Date().toISOString(),
-//     })
-//     .eq("id", postId);
-
-//   if (error) return { error: "Failed to delete post" };
-//   return { success: true };
-// }
 
 
 export async function deletePost(postId: string, authorId: string) {
