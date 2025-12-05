@@ -48,7 +48,7 @@ function CategoryPostList({
     fetchPosts();
   }, [category]);
   return (
-    <section className="w-full flex-1 rounded-lg border bg-white/70 p-4">
+    <section className="w-full flex-1 rounded-lg border p-4">
       <h2 className="mb-2 text-sm font-semibold text-gray-800">{title}</h2>
 
       {posts.length === 0 ? (
@@ -95,14 +95,14 @@ export default function BoardPreview() {
 
   if (loading) {
     return (
-      <section className="rounded-lg border bg-white/70 p-4">
+      <section className="rounded-lg border p-4">
         <h2 className="mb-2 text-lg font-semibold">인기 게시글</h2>
         <p className="text-sm text-gray-500">불러오는 중...</p>
       </section>
     );
   }
   return (
-    <div className="rounded-xl border bg-white p-6">
+    <div className="rounded-xl border p-6">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-900">🔥 인기 게시글</h3>
         <Link
