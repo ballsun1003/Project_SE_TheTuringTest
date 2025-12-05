@@ -3,6 +3,43 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AuthProvider from "./AuthProvide";
 
+/**
+ * ======================================================
+ * RootLayout Component (app/layout.tsx)
+ * ======================================================
+ * Next.js App Router 기반에서 모든 페이지의 공통 레이아웃을 정의하는
+ * 루트 레이아웃 컴포넌트.
+ *
+ * 전역 역할
+ * ------------------------------------------------------
+ * - HTML 문서 전체 구조 설정 (<html>, <body>)
+ * - 모든 페이지 컴포넌트(children) 감싸기
+ * - 전역 CSS(globals.css) 적용
+ * - Web Font(Geist Sans / Geist Mono) 글로벌 설정
+ *
+ * Metadata
+ * ------------------------------------------------------
+ * - title, description 지정
+ *   → SEO 및 브라우저 탭 정보 설정
+ *
+ * 스타일 구성
+ * ------------------------------------------------------
+ * - next/font/google 활용
+ * - CSS 커스텀 변수(--font-geist-sans / --font-geist-mono) 적용
+ * - body에 antialiased 적용 (글자 렌더링 개선)
+ *
+ * 목적
+ * ------------------------------------------------------
+ * - 앱 전체에 일관된 UI/UX 제공
+ * - 공통 스타일 요소 및 초기 설정을 중앙에서 관리
+ *
+ * 비고
+ * ------------------------------------------------------
+ * - Server Component로 동작 (기본 App Router 방식)
+ * - children은 각 라우팅 페이지를 렌더링하는 영역
+ * ======================================================
+ */
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
