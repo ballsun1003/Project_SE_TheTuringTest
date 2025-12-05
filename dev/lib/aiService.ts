@@ -50,11 +50,11 @@ const client = new OpenAI({
 // ===============================
 export async function createAIContent(prompt: string): Promise<string> {
   const response = await client.chat.completions.create({
-    model: "gpt-4o-mini",   // 원하는 모델로 변경 가능
+    model: "gpt-4o",   // 원하는 모델로 변경 가능
     messages: [
       {
         role: "system",
-        content: "너는 글을 잘 쓰는 AI야. 사용자의 프롬프트를 기반으로 자연스럽고 매끄러운 문장을 생성해."
+        content: "너는 글을 잘 쓰는 AI야. 사용자의 프롬프트를 기반으로 자연스럽고 매끄러운 게시글을 생성해."
       },
       {
         role: "user",
