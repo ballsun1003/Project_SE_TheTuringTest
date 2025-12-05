@@ -49,7 +49,7 @@ export default function NewPostPage() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen">
       {/* 상단 바 */}
       <div className="flex items-center justify-between px-4 py-4">
         <HomeButton />
