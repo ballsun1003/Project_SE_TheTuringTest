@@ -125,8 +125,6 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
     const json = await res.json();
     if (json.reaction) setReaction(json.reaction);
   }
-
- 
   async function handleReaction(type: "like" | "dislike") {
   if (!userId) return alert("로그인이 필요합니다.");
 
@@ -245,7 +243,7 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
   if (!post) return <div>로딩중...</div>;
 
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-800">
+    <main className="min-h-screen text-gray-800">
       <div className="flex items-center justify-between px-4 py-4">
         <HomeButton />
         <Link href="/board/all" className="text-gray-700 hover:underline">

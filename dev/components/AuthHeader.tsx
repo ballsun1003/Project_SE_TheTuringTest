@@ -72,17 +72,17 @@ export default function AuthHeader() {
           <span className="font-medium">{username}</span> 님 환영합니다!
           <button
             onClick={handleLogout}
-            className="px-3 py-1 rounded border text-black hover:bg-gray-100"
+            className="px-4 py-2 rounded border"
           >
             Logout
           </button>
         </div>
       ) : (
         <div className="flex gap-2">
-          <Link href="/login" className="px-4 py-2 rounded border hover:bg-gray-100">
+          <Link href="/login" className="px-4 py-2 rounded border">
             Login
           </Link>
-          <Link href="/signup" className="px-4 py-2 rounded bg-black text-white">
+          <Link href="/signup" className="px-4 py-2 rounded border">
             Sign up
           </Link>
         </div>
