@@ -90,7 +90,7 @@ export default function NotificationsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen">
       {/* 상단 */}
       <div className="flex items-center justify-between px-4 py-4 text-gray-900">
         <HomeButton />

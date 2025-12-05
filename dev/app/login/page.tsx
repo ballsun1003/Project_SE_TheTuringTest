@@ -59,8 +59,9 @@ export default function LoginPage() {
 
     const id = String(formData.get("id"));
     const password = String(formData.get("password"));
-    const captcha = String(formData.get("captcha"));
-
+    const rawCaptcha = formData.get("captcha");
+    const captcha = typeof rawCaptcha === "string" ? rawCaptcha : "";
+    
     if (!captcha) {
       alert("캡챠 인증을 완료해주세요!");
       return;
@@ -91,14 +92,16 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col bg-gray-50">
+    <main className="min-h-screen flex flex-col">
       <div className="p-4">
         <HomeButton className="mr-2 text-gray-900" />
       </div>
 
       <div className="flex flex-1 items-center justify-center">
         <div className="w-full max-w-md rounded-2xl border bg-white p-8 shadow">
-          <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">Login</h1>
+          <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">
+            Login
+          </h1>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* ID */}

@@ -1,47 +1,106 @@
-
 import Link from "next/link";
-import { listTopLikedPosts } from "@/lib/postService";
-/**
- * ======================================================
- * BoardPreview Component (BoardPreview.tsx)
- * ======================================================
- * 인기 게시글(좋아요 상위 게시글)을 미리보기 형태로 표시하는
- * 서버 컴포넌트(Server Component).
- *
- * 주요 기능
- * ------------------------------------------------------
- * - listTopLikedPosts(limit=3) 호출 → 좋아요 높은 게시글 최대 3개 조회
- * - 게시글 미리보기 UI로 표시: 제목 / 내용 요약 / 작성자 / 생성일 / 좋아요 수
- * - 각 게시글을 클릭 시 상세 페이지(/post/[id])로 이동
- * - "게시판 전체 보기" 링크를 통해 전체 게시글 목록 페이지 이동
- *
- * 데이터 처리
- * ------------------------------------------------------
- * - createdAt을 한국어 날짜 포맷(YYYY.MM.DD)으로 변환
- * - 작성자 이름 표시 (없으면 “익명”으로 대체)
- * - 좋아요 수(❤️ likeCount) UI 표시
- *
- * 조건 처리
- * ------------------------------------------------------
- * - 인기 게시글이 없을 경우 “아직 게시글이 없습니다.” 메시지 출력
- *
- * UI/구현 요소
- * ------------------------------------------------------
- * - Server Component: 데이터 fetch 및 렌더링 서버에서 수행
- * - TailwindCSS 기반 카드형 UI 구성
- * - 제목, 날짜, 내용 요약을 line-clamp로 깔끔하게 출력
- *
- * 목적
- * ------------------------------------------------------
- * - 홈(메인) 화면에서 인기 게시글을 빠르게 접근 가능하도록 제공
- * - 사용자 Engagement 향상 (조회수 및 상호작용 증가)
- * ======================================================
- */
+import { listPostsByCategory, listTopLikedPosts } from "@/lib/postService";
+import { useEffect, useState } from "react";
+import { Post, PostProps } from "@/lib/entities/Post";
+import { CATEGORY_TABS } from "@/lib/entities/Category";
 
+// 카테고리 게시글 타입 (백엔드 응답에 맞춰서 필요시 수정)
+type CategoryPost = {
+  id: number | string;
+  title: string;
+  createdAt?: string;
+};
+type PopularPost = {
+  id: number | string;
+  title: string;
+  content: string;
+  authorName: string;
+  likeCount: number;
+  category: string | null;
+  createdAt: string;
+};
+// 카테고리별 최신 글 컴포넌트
+function CategoryPostList({
+  category,
+  title,
+}: {
+  category: string;
+  title: string;
+}) {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const validCategory =
+    CATEGORY_TABS.find((c) => c.id === category)?.id ?? "all";
+  useEffect(() => {
+    // 🔽 백엔드에서 category/createdAt 기준으로 최신순 정렬해서 반환한다고 가정
+    // 필요하면 /api 경로, 쿼리 파라미터 이름을 프로젝트에 맞게 수정하면 돼.
+    const fetchPosts = async () => {
+      try {
+        const postsData = await listPostsByCategory(validCategory as any);
+        const { posts = [] } = await listPostsByCategory(validCategory as any);
 
-export default async function BoardPreview() {
-  const { posts = [] } = await listTopLikedPosts(3);
+        // 응답 형태에 따라 data.posts 또는 data로 수정
+        setPosts(posts);
+      } catch (e) {
+        console.error(e);
+      }
+    };
 
+    fetchPosts();
+  }, [category]);
+  return (
+    <section className="w-full flex-1 rounded-lg border bg-white/70 p-4">
+      <h2 className="mb-2 text-sm font-semibold text-gray-800">{title}</h2>
+
+      {posts.length === 0 ? (
+        <p className="text-xs text-gray-500">아직 게시글이 없습니다.</p>
+      ) : (
+        <ul className="space-y-1 text-sm">
+          {posts.map((post) => (
+            <li key={post.getId()} className="truncate">
+              <Link
+                href={`/board/${category}/${post.getId()}`}
+                className="hover:underline"
+              >
+                {post.getTitle()}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+export default function BoardPreview() {
+  const [posts, setPosts] = useState<PopularPost[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPopularPosts = async () => {
+      try {
+        // 🔽 인기 게시글 API 경로에 맞게 수정
+        const postsData = await listTopLikedPosts(3);
+
+        // 응답 형태에 맞게 data.posts 또는 data 그대로 사용
+        setPosts(postsData.posts);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPopularPosts();
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="rounded-lg border bg-white/70 p-4">
+        <h2 className="mb-2 text-lg font-semibold">인기 게시글</h2>
+        <p className="text-sm text-gray-500">불러오는 중...</p>
+      </section>
+    );
+  }
   return (
     <div className="rounded-xl border bg-white p-6">
       <div className="mb-3 flex items-center justify-between">
@@ -60,9 +119,14 @@ export default async function BoardPreview() {
         <ul className="space-y-3 text-sm">
           {posts.map((post) => (
             <li key={post.id} className="border-b pb-2 last:border-b-0">
-              <Link href={`/post/${post.id}`} className="block hover:text-blue-600">
+              <Link
+                href={`/post/${post.id}`}
+                className="block hover:text-blue-600"
+              >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="font-medium text-gray-500">{post.title}</span>
+                  <span className="font-medium text-gray-500">
+                    {post.title}
+                  </span>
                   <span className="text-[11px] text-gray-400">
                     {new Date(post.createdAt).toLocaleDateString("ko-KR")}
                   </span>
@@ -80,6 +144,20 @@ export default async function BoardPreview() {
           ))}
         </ul>
       )}
+      {/* 📚 카테고리별 최신 게시글 (세 칸 수직 배치) */}
+
+      <div className="mt-8 space-y-4">
+        <h2 className="text-lg font-semibold text-gray-800">
+          카테고리별 최신 글
+        </h2>
+
+        {/* 수평 배치 */}
+        <div className="flex gap-5">
+          <CategoryPostList category="free" title="자유 게시판" />
+          <CategoryPostList category="share" title="공유 게시판" />
+          <CategoryPostList category="qna" title="Q&A 게시판" />
+        </div>
+      </div>
     </div>
   );
 }
