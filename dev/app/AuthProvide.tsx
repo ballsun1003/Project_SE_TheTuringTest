@@ -36,8 +36,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // 🎨 로그인 전/후 배경색 결정
-  // - 비로그인: 차가운 쿨 그레이
-  // - 로그인: 따뜻한 아이보리/노랑 톤
   const bgClass = isLoggedIn ? "bg-amber-50" : "bg-slate-100";
 
   return (

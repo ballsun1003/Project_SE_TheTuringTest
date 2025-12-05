@@ -58,7 +58,7 @@ function CategoryPostList({
           {posts.map((post) => (
             <li key={post.getId()} className="truncate">
               <Link
-                href={`/board/${category}/${post.getId()}`}
+                href={`/post/${post.getId()}`}
                 className="hover:underline"
               >
                 {post.getTitle()}
