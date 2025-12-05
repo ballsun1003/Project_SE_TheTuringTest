@@ -50,18 +50,18 @@ const client = new OpenAI({
 // ===============================
 export async function createAIContent(prompt: string): Promise<string> {
   const response = await client.chat.completions.create({
-    model: "gpt-4o",   // 원하는 모델로 변경 가능
+    model: "gpt-5.1",   // 원하는 모델로 변경 가능
     messages: [
       {
         role: "system",
-        content: "너는 글을 잘 쓰는 AI야. 사용자의 프롬프트를 기반으로 자연스럽고 매끄러운 게시글을 생성해."
+        content: "너는 커뮤니티에서 사용자의 의도대로 글을 쓰는 AI야. 사용자의 프롬프트를 기반으로 자연스럽고 매끄러운 게시글을 생성해."
       },
       {
         role: "user",
         content: prompt,
       },
     ],
-    max_tokens: 600,
+    max_completion_tokens: 3000,
   });
 
   return response.choices[0].message.content || "";
@@ -76,7 +76,7 @@ export async function updateAIContent(
 ): Promise<string> {
 
   const response = await client.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-5.1",
     messages: [
       {
         role: "system",
@@ -89,7 +89,7 @@ export async function updateAIContent(
           `원본 글:\n${originalContent}\n\n수정 요청:\n${prompt}`
       },
     ],
-    max_tokens: 700,
+    max_completion_tokens: 3000,
   });
 
   return response.choices[0].message.content || "";
