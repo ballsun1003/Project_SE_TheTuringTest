@@ -194,45 +194,7 @@ References - 허태규
 
 ---
 
-### Use case #4 : 알림 설정
-**GENERAL CHARACTERISTICS**
-| 항목 | 내용 |
-|---|---|
-| Summary | 사용자가 알림을 수신받을지 설정하기 위한 기능 |
-| Scope | TTT (The Turing Test) |
-| Level | User level |
-| Author | 김은강 |
-| Last Update | 2025. 10. 27. |
-| Status | Analysis (Finalize) |
-| Primary Actor | 사용자 |
-| Preconditions | 사용자는 로그인 인증이 완료되어야 한다. |
-| Trigger | 사용자가 알림 수신을 허용/비허용으로 전환한다. |
-| Success Post Condition | 사용자는 알림을 수신 받을 수 있/없다. |
-| Failed Post Condition | 사용자의 설정이 이전으로 롤백 된다. |
-
-**MAIN SUCCESS SCENARIO**
-| Step | Action |
-|---|---|
-| S | 사용자가 알림 설정을 할 수 있다. |
-| 1 | 사용자가 알림 설정을 전환한다. |
-| 2 | 사용자의 알림 설정을 서버에 저장한다. |
-
-**EXTENSION SCENARIOS**
-| Step | Branching | Action |
-|---|---|---|
-| 2 | 2a. 알림 설정이 서버 저장에 실패하였다. | …2a1. 에러 메시지를 보여준다 . / ...2a2. 기존의 알림 설정으로 돌아간다.. |
-
-**RELATED INFORMATION**
-| 구분 | 값 |
-|---|---|
-| Performance | ≤ 2 seconds |
-| Frequency | 회원당 하루에 평균 2 번 |
-| Concurrency | 제한 없음 |
-| Due Date | 2025.11.07. |
-
----
-
-### Use case #5 : 알림 목록 보기
+### Use case #4 : 알림 목록 보기
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -271,7 +233,7 @@ References - 허태규
 
 ---
 
-### Use case #6 : 알림 전송
+### Use case #5 : 알림 전송
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -310,7 +272,7 @@ References - 허태규
 
 ---
 
-### Use case #7 : 관리자 로그인
+### Use case #6 : 관리자 로그인
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -350,7 +312,7 @@ References - 허태규
 
 ---
 
-### Use case #8 : 사용자 정보 조회
+### Use case #7 : 사용자 정보 조회
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -389,7 +351,7 @@ References - 허태규
 
 ---
 
-### Use case #9 : 사용자 정보 수정
+### Use case #8 : 사용자 정보 수정
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -430,7 +392,7 @@ References - 허태규
 
 ---
 
-### Use case #10 : 게시글 작성
+### Use case #9 : 게시글 작성
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -470,7 +432,7 @@ References - 허태규
 
 ---
 
-### Use case #11 : 게시글 수정
+### Use case #10 : 게시글 수정
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -510,7 +472,7 @@ References - 허태규
 
 ---
 
-### Use case #12 : 게시글 삭제
+### Use case #11 : 게시글 삭제
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -549,7 +511,7 @@ References - 허태규
 
 ---
 
-### Use case #13 : 게시글 목록
+### Use case #12 : 게시글 목록
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -582,7 +544,7 @@ References - 허태규
 
 ---
 
-### Use case #14 : 게시글 조회
+### Use case #13 : 게시글 조회
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -615,7 +577,7 @@ References - 허태규
 
 ---
 
-### Use case #15 : 회원가입
+### Use case #14 : 회원가입
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -666,7 +628,7 @@ References - 허태규
 
 ---
 
-### Use case #16 : 로그인
+### Use case #15 : 로그인
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -711,7 +673,7 @@ References - 허태규
 
 ---
 
-### Use case #17 : 로그아웃
+### Use case #16 : 로그아웃
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -750,7 +712,7 @@ References - 허태규
 
 ---
 
-### Use case #18 : 내 정보 관리
+### Use case #17 : 내 정보 관리
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -770,7 +732,7 @@ References - 허태규
 | Step | Action |
 |---|---|
 | S | 사용자가 내 정보 관리 화면에 진입을 시도한다. |
-| 1 | 시스템은 사용자에게 비밀번호 재입력 및 Use case #21을 통해 CAPTCHA 인증을 요구한다. |
+| 1 | 시스템은 사용자에게 비밀번호 재입력 및 Use case #20을 통해 CAPTCHA 인증을 요구한다. |
 | 2 | 사용자는 현재 비밀번호를 입력하고 CAPTCHA를 인증한 후 확인 버튼을 클릭한다 |
 | 3 | 시스템은 비밀번호 일치 여부와 CAPTCHA 성공 여부를 검증한다. |
 | 4 | 검증 성공 시, 시스템은 '내 정보 관리' 페이지를 표시한다. 이 페이지에는 정보 변경, 로그인 이력 조회, 작성 글/댓글 조회, 약관 조회, 회원 탈퇴 등의 옵션이 포함된다. |
@@ -799,48 +761,7 @@ References - 허태규
 
 ---
 
-### Use case #19 : 이메일 인증
-**GENERAL CHARACTERISTICS**
-| 항목 | 내용 |
-|---|---|
-| Summary | 사용자의 정보가 본인의 것인지 확인하는 기능 |
-| Scope | TTT (The Turing Test) |
-| Level | User level |
-| Author | 박종선 |
-| Last Update | 2025. 11. 04. |
-| Status | Analysis (Finalize) |
-| Primary Actor | 사용자 |
-| Preconditions | 이메일 인증을 수행할 사용자의 계정이 시스템에 존재해야 한다. |
-| Trigger | 사용자가 직접 요청 / 다른 Use case에 의해서 발동 |
-| Success Post Condition | 사용자의 이메일 인증이 성공한다. |
-| Failed Post Condition | 사용자의 이메일 인증이 실패한다. |
-
-**MAIN SUCCESS SCENARIO**
-| Step | Action |
-|---|---|
-| S | 사용자에 대해 이메일 인증이 요청된다. |
-| 1 | 시스템은 등록된 이메일을 통해 인증 코드가 포함된 이메일을 발송한다. |
-| 2 | 사용자는 이메일에 포함된 인증 코드를 제한시간 내에 입력한다. |
-| 3 | 이메일 인증이 성공하고 Use case는 종료된다. |
-
-**EXTENSION SCENARIOS**
-| Step | Branching | Action |
-|---|---|---|
-| 2 | 2a. 이메일 발송 실패 | 2a1. 제한시간이 초과되어 이메일 인증이 실패하고 Use case는 종료된다. |
-| 3 | 3a. 인증 코드를 틀리게 입력 | 3a1. step 1로 이동 |
-| 3 | 3b. 제한시간 초과 | 3b1. 이메일 인증이 실패하고 Use case는 종료된다. |
-
-**RELATED INFORMATION**
-| 구분 | 값 |
-|---|---|
-| Performance | ≤ 120 seconds |
-| Frequency | 사용자당 월 평균 1회 |
-| Concurrency | 제한 없음 |
-| Due Date | 2025. 11. 07. |
-
----
-
-### Use case #20 : CAPTCHA
+### Use case #18 : CAPTCHA
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -879,45 +800,7 @@ References - 허태규
 
 ---
 
-### Use case #21 : 약관 조회
-**GENERAL CHARACTERISTICS**
-| 항목 | 내용 |
-|---|---|
-| Summary | 이용약관과 각종 정책을 조회하는 기능 |
-| Scope | TTT (The Turing Test) |
-| Level | Subfunction level |
-| Author | 박종선 |
-| Last Update | 2025. 11. 04. |
-| Status | Analysis (Finalize) |
-| Primary Actor | 사용자 |
-| Preconditions | 사용자가 시스템에 접속되어 있어야 한다. |
-| Trigger | 다른 Use case에 의해서 발동 |
-| Success Post Condition | 사용자가 이용약관과 정책을 확인한다. |
-| Failed Post Condition | 사용자가 이용약관과 정책을 확인하지 못한다. |
-
-**MAIN SUCCESS SCENARIO**
-| Step | Action |
-|---|---|
-| S | 사용자가 이용약관과 정책을 확인하려 한다. |
-| 1 | 시스템은 이용약관과 정책을 표시한다. |
-| 2 | 사용자가 확인 버튼을 클릭하면 Use case는 종료된다. |
-
-**EXTENSION SCENARIOS**
-| Step | Branching | Action |
-|---|---|---|
-| 1 | 1a. 시스템 오류로 이용약관 또는 정책을 표시하지 못함 | 1a1. Use case는 종료된다. |
-
-**RELATED INFORMATION**
-| 구분 | 값 |
-|---|---|
-| Performance | ≤ 3 seconds |
-| Frequency | 사용자당 연 평균 1회 |
-| Concurrency | 제한 없음 |
-| Due Date | 2025. 11. 07. |
-
----
-
-### Use case #22 : Check Text-box
+### Use case #19 : 댓글 작성
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -957,7 +840,7 @@ References - 허태규
 
 ---
 
-### Use case #23 : Update Comment
+### Use case #20 : Update Comment
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -997,7 +880,7 @@ References - 허태규
 
 ---
 
-### Use case #24 : Delete Comment
+### Use case #21 : Delete Comment
 **GENERAL CHARACTERISTICS**
 | 항목 | 내용 |
 |---|---|
@@ -1551,6 +1434,7 @@ https://dev.to/yasmine_ddec94f4d4/understanding-the-layered-architecture-pattern
 
 [common webarchitecture explain]  
 https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-applic ation-architectures
+
 
 
 
