@@ -13,6 +13,7 @@
 | Revision date | Version # | Description | Author |
 |---|---|---|---|
 | 11/07/2025 | 1.0 | first draft | All team member |
+| 11/07/2025 | 2.0 | 완성된 SW에 맞추어 수정 | All team member |
 
 ---
 
@@ -1038,357 +1039,271 @@ References - 허태규
 
 ## 3. Class diagram
 이번 장은 시스템의 주요 클래스들과 그 관계를 보여주는 Class diagram을 제공한다. 전체 시스템 구조를 파악하기 위해 주요 도메인 및 서비스 클래스를 중심으로 설계하였다.  
-![Class diagram (p.34)](img/CD.png)
-
-### User
-**Class Description**: 사용자 계정의 핵심 데이터. 이메일/비밀번호/닉네임/권한/상태를 가진다.
-
-**Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| id | string | private | 사용자 고유 ID |
-| email | string | private | 로그인용 이메일 |
-| passwordHash | string | private | 암호화된 비밀번호 |
-| nickname | string | private | 닉네임 |
-| permission | Permission | private | 권한 |
-| isActive | boolean | private | 활성화 여부 |
-| lastLoginAt | Date | private | 마지막 로그인 시각 |
-| createdAt | Date | private | 계정 생성 시각 |
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| getId | none | string | ID 조회 |
-| getEmail | none | string | 이메일 조회 |
-| setEmail | email: string | void | 이메일 변경 |
-| verifyPassword | plain: string | boolean | 평문 비밀번호가 해시와 일치하는지 검사 |
-| getNickname | none | string | 닉네임 조회 |
-| setNickname | nickname: string | void | 닉네임 변경 |
-| getPermission | none | Permission | 권한 조회 |
-| setPermission | p: Permission | void | 권한 변경 |
-| isActive | none | boolean | 활성 여부 조회 |
-| setActive | active: boolean | void | 활성 상태 변경 |
-| getLastLoginAt | none | Date | 마지막 로그인 조회 |
-| setLastLoginAt | d: Date | void | 마지막 로그인 갱신 |
-| getCreatedAt | none | Date | 생성일 조회 |
+![Class diagram](img/CD.png)
 
 ---
 
-### Post
-**Class Description**: 게시글 본문·제목·작성자·AI모델명·좋아요/싫어요/조회수·시간·삭제 여부 등 메타데이터 관리
+### 1. Entities (데이터 모델)
+데이터베이스 테이블과 매핑되며 시스템의 핵심 데이터를 담고 있는 객체들입니다.
+
+#### **1.1 Class: User**
+사용자 계정 정보를 나타내는 클래스입니다. 보안을 위해 비밀번호 해시 등 민감 정보는 UI 레벨의 객체에 포함하지 않습니다.
 
 **Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| id | string | private | 게시글 ID |
-| title | string | private | 제목 |
-| content | string | private | 본문 |
-| authorId | string | private | 본문 |
-| modelName | string | private | 본문 생성에 사용된 AI 모델명 |
-| likeCount | int | private | 좋아요 수 |
-| dislikeCount | int | private | 싫어요 수 |
-| viewCount | int | private | 조회수 |
-| createdAt | Date | private | 생성 시각 |
-| updatedAt | Date | private | 수정 시각 |
-| isDeleted | boolean | private | 논리 삭제 여부 |
-| category | enum | private | 게시글 분류 |
+| Name | Type | Description |
+|---|---|---|
+| **id** | string | 사용자를 고유하게 식별하는 UUID입니다. |
+| **username** | string | 사용자가 로그인 및 활동 시 사용하는 고유한 아이디(닉네임)입니다. |
+| **createdAt** | string | 계정이 생성된 시각(Timestamp)입니다. |
+| **lastLogin** | string \| null | 사용자의 마지막 로그인 시각입니다. 최초 가입 시 `null`일 수 있습니다. |
 
 **Operations**
-| Name | Argument | Returns | Description |
+| Name | Parameter | Return | Description |
 |---|---|---|---|
-| getId | none | string | 식별 |
-| getTitle | none | string | 제목 조회 |
-| setTitle | title: string | void | 제목 변경 |
-| getContent | none | string  | 본문 조회 |
-| setContent | content: string | void | 본문 변경 |
-| getAuthorId | none | string  | 작성자 조회 |
-| getModelName | none | string  | 모델명 조회 |
-| setModelName | name: string | void | 모델명 변경 |
-| getLikeCount | none | int | 좋아요 수 조회 |
-| getDislikeCount | none | int | 싫어요 수 조회 |
-| like | none | void | 좋아요 1 증가 |
-| dislike | none | void | 싫어요 1 증가 |
-| incrementView | none | void | 조회수 1 증가 |
-| softDelete | none | void | 논리 삭제 처리 |
-| getCategory | none | enum  | 게시글 분류 조회 |
-| setCategory | category: enum | void | 게시글 분류 변경 |
+| **getId** | - | string | 사용자 ID를 반환합니다. |
+| **getUsername** | - | string | 사용자 아이디를 반환합니다. |
+| **getCreatedAt** | - | string | 가입일을 반환합니다. |
+| **getLastLogin** | - | string | 마지막 로그인 시각을 반환합니다. |
+
+#### **1.2 Class: Post**
+게시글 정보를 담는 클래스입니다. 사용자의 프롬프트와 AI가 생성한 본문을 모두 포함합니다.
+
+**Attributes**
+| Name | Type | Description |
+|---|---|---|
+| **id** | string | 게시글 고유 UUID입니다. |
+| **authorId** | string | 작성자의 사용자 ID 입니다. |
+| **title** | string | 사용자가 입력한 게시글 제목입니다. |
+| **content** | string | AI 모델이 생성한 게시글 본문 내용입니다. |
+| **prompt** | string | AI 생성에 사용된 최초의 지시문(프롬프트)입니다. |
+| **updatedPrompt** | string | 수정 시 사용된 새로운 지시문입니다. (없으면 null) |
+| **likeCount** | number | 좋아요 받은 총 횟수입니다. |
+| **dislikeCount** | number | 싫어요 받은 총 횟수입니다. |
+| **viewCount** | number | 게시글 조회수입니다. |
+| **category** | "free"\|"share"\|"qna" | 게시글이 속한 카테고리입니다. |
+| **isDeleted** | boolean | 삭제 여부 플래그입니다 (Soft Delete). `true`면 삭제된 글입니다. |
+| **createdAt** | string | 최초 작성 시각입니다. |
+| **updatedAt** | string | 마지막 수정 시각입니다. |
+
+**Operations**
+| Name | Parameter | Return | Description |
+|---|---|---|---|
+| **setContent** | newContent: string | void | 생성된 AI 본문 내용을 설정합니다. |
+| **setUpdatedPrompt** | prompt: string | void | 수정용 프롬프트를 설정합니다. |
+| **setTitle** | newTitle: string | void | 게시글 제목을 변경합니다. |
+| **setCategory** | cat: string | void | 게시글 카테고리를 변경합니다. |
+
+#### **1.3 Class: Comment**
+게시글에 달리는 댓글 정보를 담는 클래스입니다.
+
+**Attributes**
+| Name | Type | Description |
+|---|---|---|
+| **id** | string | 댓글 고유 UUID입니다. |
+| **postId** | string | 댓글이 소속된 게시글 ID 입니다. |
+| **authorId** | string | 작성자의 사용자 ID 입니다. |
+| **content** | string | AI 모델이 생성한 댓글 본문입니다. |
+| **prompt** | string | 댓글 생성에 사용된 지시문입니다. |
+| **updatedPrompt** | string | 댓글 수정 시 사용된 지시문입니다. |
+| **createdAt** | string | 댓글 작성 시각입니다. |
+| **updatedAt** | string | 댓글 수정 시각입니다. |
+
+**Operations**
+| Name | Parameter | Return | Description |
+|---|---|---|---|
+| **setContent** | content: string | void | AI가 생성한 댓글 내용을 설정합니다. |
+
+#### **1.4 Class: Notification**
+사용자 간 상호작용 알림 정보를 담는 클래스입니다.
+
+**Attributes**
+| Name | Type | Description |
+|---|---|---|
+| **id** | string | 알림 고유 UUID입니다. |
+| **toUserId** | string | 알림을 받는 사용자 ID입니다. |
+| **fromUserId** | string | 알림을 발생시킨(행동한) 사용자 ID입니다. |
+| **postId** | string | 관련된 게시글 ID입니다. |
+| **type** | "comment"\|"like"\|"dislike" | 알림의 종류입니다. |
+| **createdAt** | string | 알림 발생 시각입니다. |
+
+**Operations**
+| Name | Parameter | Return | Description |
+|---|---|---|---|
+| **getType** | - | string | 알림의 종류를 반환합니다. |
+| **getFromUserId** | - | string | 알림을 보낸 사용자 ID를 반환합니다. |
 
 ---
 
-### Comment
-**Class Description**: 댓글 본문·작성자·게시글 참조와 생성/수정 시각 관리
+### 2. Services (비즈니스 로직)
+서버 통신, 데이터 처리, 외부 API 호출 등을 담당하는 클래스들입니다.
 
-**Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| id | string | private | 댓글 ID |
-| postId | string | private | 소속 게시글 ID |
-| authorId | string | private | 작성자 ID |
-| content | string | private | 댓글 내용 |
-| createdAt | Date | private | 최초 생성 시각 |
-| updatedAt | Date | private | 최종 수정 시각 |
+#### **2.1 Class: UserService**
+사용자 인증 및 계정 관리를 담당합니다.
 
 **Operations**
-| Name | Argument | Returns | Description |
+| Name | Parameter | Return | Description |
 |---|---|---|---|
-| getId | none | string | 식별자 조회 |
-| getPostId | none | string | 식별자 조회 |
-| getAuthorId | none | string | 식별자 조회 |
-| getContent | none | string | 내용 조회 |
-| setContent | content: string | void | 내용 변경 |
-| getCreatedAt | none | Date | 시간 조회 |
-| getUpdatedAt | none | Date | 시간 조회 |
-| setUpdatedAt | d: Date | void | 수정 시각 갱신 |
+| **signUpUser** | username, password, token | User | 캡차 검증, 중복 검사, 비밀번호 해싱 후 사용자를 생성합니다. |
+| **loginUser** | username, password, token | User | 캡차 검증 및 자격 증명 확인 후 로그인 처리 및 토큰을 반환합니다. |
+| **getCurrentUser** | token | User | 세션 토큰(ID)을 기반으로 현재 사용자 정보를 조회합니다. |
+| **getUserStats** | userId | Stats | 사용자의 총 게시글 수, 받은 좋아요/싫어요 총합을 계산합니다. |
+| **updateUserInfo** | userId, newUsername, ... | void | 닉네임 또는 비밀번호를 변경합니다. (본인/관리자 권한 확인) |
+| **deleteUserAndData** | userId | void | 사용자 계정과 관련된 모든 데이터(글, 댓글 등)를 영구 삭제합니다. |
+
+#### **2.2 Class: PostService**
+게시글 CRUD 및 AI 생성을 조율합니다.
+
+**Operations**
+| Name | Parameter | Return | Description |
+|---|---|---|---|
+| **createPost** | authorId, title, prompt, category | Post | 프롬프트를 저장하여 게시글 레코드를 생성합니다(본문은 비어있음). |
+| **updatePostContent** | postId, content, updatedPrompt | Post | AI가 생성한 본문을 게시글에 업데이트합니다. |
+| **updatePostMeta** | postId, title, category | Post | 게시글의 제목이나 카테고리만 수정합니다. |
+| **getPostById** | postId | Post | 특정 게시글을 조회합니다 (삭제된 글 제외). |
+| **listPostsByCategory** | category | Post[] | 카테고리별 최신 게시글 목록을 조회합니다. |
+| **listPostsByUser** | userId | Post[] | 특정 사용자가 작성한 게시글 목록을 조회합니다. |
+| **increaseViewCount** | postId | void | 게시글 조회수를 1 증가시킵니다 (RPC 호출). |
+| **deletePost** | postId, authorId | boolean | 게시글을 논리적으로 삭제(`isDeleted=true`) 처리합니다. |
+| **updatePost** | postId, authorId, ... | Post | 게시글 제목, 본문, 프롬프트를 한 번에 수정합니다. |
+| **listTopLikedPosts** | limit | Post[] | 좋아요 수가 가장 많은 인기 게시글 목록을 반환합니다. |
+
+#### **2.3 Class: CommentService**
+댓글 관리 기능을 제공합니다.
+
+**Operations**
+| Name | Parameter | Return | Description |
+|---|---|---|---|
+| **createComment** | postId, authorId, content, prompt | Comment | 댓글을 생성하고 저장합니다. |
+| **updateCommentContent** | commentId, content, updatedPrompt, userId | Comment | 작성자 권한 확인 후 댓글 내용과 프롬프트를 수정합니다. |
+| **getCommentById** | commentId | Comment | 특정 댓글을 단건 조회합니다. |
+| **listCommentsByPostId** | postId | Comment[] | 특정 게시글에 달린 모든 댓글을 조회합니다. |
+| **deleteComment** | commentId, userId | boolean | 작성자 권한 확인 후 댓글을 영구 삭제합니다. |
+| **listCommentsByUser** | userId | Comment[] | 특정 사용자가 쓴 댓글 목록을 조회합니다. |
+
+#### **2.4 Class: ReactionService**
+좋아요/싫어요 기능을 처리합니다.
+
+**Operations**
+| Name | Parameter | Return | Description |
+|---|---|---|---|
+| **toggleReaction** | postId, userId, type | ReactionResult | 좋아요/싫어요 상태를 토글하고 최신 카운트를 반환합니다. 필요시 알림을 생성합니다. |
+| **getUserReaction** | postId, userId | string | 특정 사용자가 해당 글에 남긴 반응(like/dislike/null)을 조회합니다. |
+
+#### **2.5 Class: NotificationService**
+알림 관리 기능을 제공합니다.
+
+**Operations**
+| Name | Parameter | Return | Description |
+|---|---|---|---|
+| **createNotification** | toUserId, fromUserId, postId, type | Notification | 새로운 알림을 생성합니다. |
+| **listNotificationsByUser** | userId | Notification[] | 사용자가 받은 알림 목록을 발신자 정보와 함께 조회합니다. |
+| **deleteNotification** | notiId | boolean | 특정 알림 하나를 삭제합니다. |
+| **deleteAllNotificationsByUser** | userId | boolean | 사용자의 모든 알림을 일괄 삭제합니다. |
+
+#### **2.6 Class: AIService**
+OpenAI API를 래핑하여 텍스트 생성 기능을 제공합니다.
+
+**Operations**
+| Name | Parameter | Return | Description |
+|---|---|---|---|
+| **createAIContent** | prompt | string | 프롬프트를 입력받아 새로운 게시글/댓글 본문을 생성합니다. |
+| **updateAIContent** | originalContent, prompt | string | 기존 본문과 수정 지시문을 입력받아 내용을 재작성(Rewrite)합니다. |
+
+#### **2.7 Class: CaptchaService**
+봇 방지를 위한 캡차 검증을 수행합니다.
+
+**Operations**
+| Name | Parameter | Return | Description |
+|---|---|---|---|
+| **verifyTurnstile** | token | boolean | Cloudflare Turnstile API에 토큰을 보내 유효성을 검증합니다. |
 
 ---
 
-### Evaluation 
-**Class Description**: 특정 게시글에 대한 사용자의 LIKE/DISLIKE
+### 3. UI Components (프레젠테이션 계층)
+사용자 화면을 구성하는 React 컴포넌트 클래스들입니다.
 
+#### **3.1 Class: RootLayout**
+**Operations**
+| Name | Parameter | Return | Description |
+|---|---|---|---|
+| **render** | children | JSX | 앱의 최상위 구조(HTML, Body)를 잡고 폰트와 AuthProvider를 적용합니다. |
+
+#### **3.2 Class: AuthProvider**
 **Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| id | string | private | 평가 ID |
-| postId | string | private | 대상 게시글 ID |
-| userId | string | private | 평가자 ID |
-| type | EvalType | private | 평가 종류 |
+| Name | Type | Description |
+|---|---|---|
+| **isLoggedIn** | boolean | 현재 사용자의 로그인 여부 상태입니다. |
+| **bgClass** | string | 로그인 상태에 따라 변경되는 배경색 클래스명입니다. |
 
 **Operations**
-| Name | Argument | Returns | Description |
+| Name | Parameter | Return | Description |
 |---|---|---|---|
-| getId | none | string | 식별자 조회 |
-| getPostId | none | string | 식별자 조회 |
-| getUserId | none | string | 식별자 조회 |
-| getType | none | EvalType  | 평가 종류 조회 |
-| setType | t: EvalType | void | 평가 종류 변경 |
+| **useAuth** | - | Context | 하위 컴포넌트에서 인증 상태에 접근할 수 있게 합니다. |
+| **useEffect** | - | void | 컴포넌트 마운트 시 LocalStorage를 확인하여 로그인 상태를 초기화합니다. |
 
----
-
-### Noti / AI
-**Noti — Class Description**: 알림(제목/내용/아이콘/시간/읽음여부)
-
+#### **3.3 Class: AuthHeader**
 **Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| id | string | private | 알림 ID |
-| title | string | private | 제목 |
-| icon | string | private | 아이콘 |
-| description | string | private | 내용 |
-| date | Date | private | 생성 시각 |
-| isRead | boolean | private | 읽음 여부 |
+| Name | Type | Description |
+|---|---|---|
+| **isLoggedIn** | boolean | 로그인 상태 (UI 렌더링용)입니다. |
+| **username** | string | 표시할 사용자 이름입니다. |
 
 **Operations**
-| Name | Argument | Returns | Description |
+| Name | Parameter | Return | Description |
 |---|---|---|---|
-| getId | none | string | 기본 정보 조회 |
-| getTitle | none | string | 기본 정보 조회 |
-| getDescription | none | string | 기본 정보 조회 |
-| getDate | none | Date | 기본 정보 조회 |
-| isRead | content: string | boolean | 읽음 여부 조회 |
-| setUpdatedAt | d: Date | void | 읽음 처리 |
+| **handleLogout** | - | void | LocalStorage를 비우고 로그아웃 처리를 한 뒤 홈으로 이동합니다. |
+| **render** | - | JSX | 로그인 상태에 따라 로그인 버튼 또는 프로필/로그아웃 버튼을 렌더링합니다. |
 
-**AI — Class Description**: 프롬프트 기반 본문 생성/수정
-
+#### **3.4 Class: BoardPreview**
 **Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| modelName | string | private | 사용하는 AI 모델명 |
+| Name | Type | Description |
+|---|---|---|
+| **posts** | Post[] | 화면에 표시할 인기 게시글 목록 데이터입니다. |
 
 **Operations**
-| Name | Argument | Returns | Description |
+| Name | Parameter | Return | Description |
 |---|---|---|---|
-| generateText | prompt: string | string | 프롬프트로 본문 생성 |
-| editText | base: string, prompt: string | string | 기존 텍스트를 프롬프트대로 수정 |
+| **useEffect** | - | void | 컴포넌트 로드 시 게시글 데이터를 비동기로 호출합니다. |
+| **fetchPopularPosts** | - | void | `PostService`를 호출하여 인기글 데이터를 가져와 상태를 갱신합니다. |
+| **render** | - | JSX | 인기글 목록과 하위 `CategoryPostList` 컴포넌트들을 렌더링합니다. |
 
----
-
-### DB / Auth
-**DB — Class Description**: 게시글·사용자 등 리소스에 대한 CRUD를 추상화
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| select | resource: string, criteria: any | any | 조건 조회 |
-| insert | resource: string, data: any | any | 삽입 |
-| update | resource: string, id: string, patch: any | any | 부분 수정 |
-| delete | resource: string, id: string | any | 삭제 |
-
-**Auth — Class Description**: 회원가입/로그인/인증/프로필 갱신
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| signUp | email: string, password: string, nickname: string | User | 사용자 등록 |
-| verifyEmail | email: string, code: string | boolean | 이메일 인증 |
-| signIn | email: string, password: string | string | 로그인(토큰/세션ID) |
-| signOut | none | void | 로그아웃 |
-| reAuth | password: string | boolean | 민감 변경 전 재인증 |
-| verifyCAPTCHA | none | boolean | 사람 인증 |
-| updateProfile | user: User | void | 프로필 갱신 |
-
----
-
-### PostService / CommentService / EvalService
-**PostService — Class Description**: 게시글 CRUD + AI/DB 조율
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| createFromPrompt | authorId: string, title: string, prompt: string | Post | AI로 본문 생성 후 저장 |
-| editWithPrompt | postId: string, editorId: string, prompt: string | Post | AI로 본문 수정 |
-| delete | postId: string, requestorId: string | boolean | 논리 삭제 처리 |
-| getById | id: string | Post | 단건 조회 |
-| list | filter: any | Post[] | 목록 조회(정렬/검색 포함) |
-| increaseView | postId: string | void | 조회수 +1 |
-
-**CommentService — Class Description**: 댓글 생성/수정/삭제
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| createFromPrompt | postId: string, authorId: string, prompt: string | Comment | 프롬프트로 댓글 생성 |
-| editWithPrompt | commentId: string, editorId: string, prompt: string | Comment | 프롬프트로 댓글 수정 |
-| delete | commentId: string, requestorId: string | boolean | 댓글 삭제 |
-
-**EvalService — Class Description**: 좋아요/싫어요 생성·삭제 + 알림 연동
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| evaluate | postId: string, userId: string, type: EvalType | Evaluation | 평가 생성/토글 처리 |
-| delete | id: string | void | 평가 삭제 |
-
----
-
-### NotiService / BoardScreen / PostList
-**NotiService — Class Description**: 알림 전송/수신/읽음처리/삭제
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| sendNoti | noti: Noti | boolean | 알림 전송 |
-| receiveNoti | noti: Noti | Noti | 알림 수신 처리 |
-| detectTrigger | none | int | 알림 트리거 감지 |
-| markAsRead | noti: Noti | boolean | 읽음 표시 |
-| deleteNoti | noti: Noti | Noti | 알림 삭제 |
-
-**BoardScreen — Class Description**: 게시판 메인 화면. 목록 표시/필터 적용
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| render | none | void | 메인 화면 렌더 |
-| applyFilter | none | void | 필터 적용 및 목록 갱신 |
-
-**PostList — Class Description**: 프롬프트 기반 본문 생성/수정
-
+#### **3.5 Class: PostList**
 **Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| noti: items | Post[] | private | 렌더 대상 게시글 목록 |
+| Name | Type | Description |
+|---|---|---|
+| **posts** | PostListItem[] | 렌더링할 게시글 데이터 배열입니다. |
 
 **Operations**
-| Name | Argument | Returns | Description |
+| Name | Parameter | Return | Description |
 |---|---|---|---|
-| getItems | none | Post[] | 목록 조회 |
-| setItems | items: Post[] | void | 목록 설정 |
-| render | none | void | 목록 렌더링 |
+| **render** | - | JSX | 전달받은 게시글 목록을 순회하며 카드 형태의 UI로 렌더링합니다. |
 
----
-
-### PostScreen / PostCreateScreen / SearchBox / LoginScreen
-**PostScreen — Class Description**: 게시글 상세 페이지. 좋아요/싫어요/댓글 추가
-
+#### **3.6 Class: Captcha**
 **Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| postId | string | public | 현재 게시글 ID |
+| Name | Type | Description |
+|---|---|---|
+| **siteKey** | string | Turnstile 위젯 초기화에 필요한 공개 키입니다. |
+| **token** | string | 검증 완료 후 발급받은 토큰값입니다. |
 
 **Operations**
-| Name | Argument | Returns | Description |
+| Name | Parameter | Return | Description |
 |---|---|---|---|
-| like | none | void | 좋아요 추가 |
-| dislike | none | void | 싫어요 추가 |
-| addComment | prompt: string | void | AI 댓글 생성/추가 |
+| **onVerify** | token | void | 캡차 성공 시 토큰을 상태에 저장합니다. |
+| **render** | - | JSX | Turnstile 위젯과 Hidden Input을 렌더링합니다. |
 
-**PostCreateScreen — Class Description**: 제목/프롬프트 입력 → AI 본문 생성 → 게시글 등록
-
-**Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| title | string | public | 제목 입력값 |
-| prompt | string | public | 프롬프트 입력값 |
-
+#### **3.7 Class: ProtectedAction**
 **Operations**
-| Name | Argument | Returns | Description |
+| Name | Parameter | Return | Description |
 |---|---|---|---|
-| submit | none | void | 입력값 검증 → 생성 요청 |
-
-**SearchBox — Class Description**: 분류+키워드 입력 → 게시글 검색 결과 반환
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| onSubmit | field: SearchField, keyword: string | Post[] | 조건 기반 검색 |
-
-**LoginScreen — Class Description**: 로그인 화면
-
-**Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| email | string | private | 입력 이메일 |
-| password | string | private | 입력 비밀번호 |
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| submit | email: string, password: string | void | 입력 검증 후 Auth.signIn호출 |
-
----
-
-### SignUpScreen / UserProfileScreen / NotiList
-**SignUpScreen — Class Description**: 회원가입 화면
-
-**Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| email | string | private | 입력 이메일 |
-| password | string | private | 입력 비밀번호 |
-| confirmPassword | string | private | 비밀번호 확인 |
-| nickname | string | private | 닉네임 |
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| submit | email: string, password: string, confirmPassword: string, nickname: string | void | 유효성 검사 → CAPTCHA → Auth.signUp |
-
-**UserProfileScreen — Class Description**: 내 글/댓글 보기, 프로필 수정, 로그인 이력
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| showMyComment | none | void | 내가 쓴 댓글 표시 |
-| showMyPost | none | void | 내가 쓴 글 표시 |
-| updateMyProfile | none | void | 프로필 수정 |
-| showMyLoginHistory | none | void | 로그인 이력 표시 |
-
-**NotiList — Class Description**: 알림 목록 화면
-
-**Attributes**
-| Name | Type | Visibility | Description |
-|---|---|---|---|
-| notiArray | Noti[] | private | 알림 목록 |
-
-**Operations**
-| Name | Argument | Returns | Description |
-|---|---|---|---|
-| getNotis | none | Noti[] | 전체 알림 조회 |
-| getUnReadNotis | none | Noti[] | 읽지 않은 알림 조회 |
+| **handleClick** | - | void | 클릭 시 LocalStorage 토큰을 확인하고, 없으면 로그인 페이지로 이동시킵니다. |
+| **render** | children | JSX | 자식 요소를 감싸는 버튼을 렌더링합니다. |
 
 ---
 
 ## 4. Sequence diagram
 이 장은 주요 Use case의 실행 흐름을 보여주는 Sequence diagram을 제공한다. 각 다이어그램은 특정 Use case description의 시나리오를 기반으로 객체 간의 상호작용을 시간 순서대로 묘사한다.
+
+---
 
 - Use case #1 : Post Search —
 ![p.45](img/SD1.png)
@@ -1636,6 +1551,7 @@ https://dev.to/yasmine_ddec94f4d4/understanding-the-layered-architecture-pattern
 
 [common webarchitecture explain]  
 https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-applic ation-architectures
+
 
 
 
