@@ -1,0 +1,25 @@
+sequenceDiagram
+    actor User
+    participant UI as LoginPage
+    participant Service as UserService
+    participant DB as Supabase DB
+    participant Local as LocalStorage
+
+    User->>UI: 아이디, 비밀번호 입력 & 캡차
+    UI->>Service: loginUser(username, password, token)
+    
+    activate Service
+    Service->>Service: verifyTurnstile(token)
+    Service->>DB: Select User by username
+    DB-->>Service: User Data (Hash included)
+    Service->>Service: bcrypt.compare(password, hash)
+    
+    alt 비밀번호 일치
+        Service->>DB: UPDATE users SET last_login = now()
+        Service-->>UI: { user, accessToken }
+        UI->>Local: setItem("accessToken", token)
+        UI-->>User: 메인 화면 이동
+    else 불일치/오류
+        Service-->>UI: Error
+    end
+    deactivate Service

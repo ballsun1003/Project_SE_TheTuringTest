@@ -1,0 +1,12 @@
+sequenceDiagram
+    actor User
+    participant Header as AuthHeader
+    participant Local as LocalStorage
+    participant Router as NextRouter
+
+    User->>Header: "Logout" 클릭
+    Header->>Local: removeItem("accessToken")
+    Header->>Local: removeItem("username")
+    Header->>Header: setIsLoggedIn(false)
+    Header->>Router: push("/")
+    Router-->>User: 홈 화면 표시

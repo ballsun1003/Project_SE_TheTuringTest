@@ -1,0 +1,44 @@
+sequenceDiagram
+    actor User
+    participant UI as UserProfileScreen
+    participant Service as UserService
+    participant DB as Supabase DB
+
+    User->>UI: 정보 수정(닉네임/비밀번호) 시도
+    
+    UI->>Service: updateUserInfo(userId, newName, oldPw, newPw)
+    activate Service
+
+    %% 1. 루트 계정 보호
+    alt userId == ROOT_ID
+        Service-->>UI: Error "Cannot modify root"
+    end
+
+    %% 2. 닉네임 중복 검사 (변경 시)
+    opt 닉네임 변경
+        Service->>DB: SELECT id FROM users WHERE username=newName
+        DB-->>Service: (Result)
+        alt 중복 존재
+            Service-->>UI: Error "Username exists"
+        end
+    end
+
+    %% 3. 비밀번호 변경 검증
+    opt 비밀번호 변경
+        Service->>DB: SELECT password_hash FROM users...
+        DB-->>Service: Hash
+        Service->>Service: bcrypt.compare(oldPw, Hash)
+        alt 비밀번호 불일치
+            Service-->>UI: Error "Wrong password"
+        else 비밀번호 일치
+            Service->>Service: bcrypt.hash(newPw)
+        end
+    end
+
+    %% 4. 업데이트 수행
+    Service->>DB: UPDATE users SET ...
+    DB-->>Service: Success
+    Service-->>UI: Success
+    deactivate Service
+
+    UI-->>User: "수정 완료" 메시지 표시

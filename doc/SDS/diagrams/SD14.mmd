@@ -1,0 +1,22 @@
+sequenceDiagram
+    actor User
+    participant UI as Button (ProtectedAction)
+    participant Local as LocalStorage
+    participant Router as NextRouter
+    participant Handler as ParentComponent (OnAction)
+
+    User->>UI: 버튼 클릭 (예: 좋아요, 글쓰기 등)
+    
+    UI->>Local: getItem("accessToken")
+    activate UI
+    
+    alt 토큰 없음 (비로그인)
+        UI->>Router: push("/login")
+        Router-->>User: 로그인 페이지 이동
+    else 토큰 있음 (로그인)
+        UI->>Handler: onAction() 콜백 실행
+        activate Handler
+        Handler->>Handler: 실제 기능 수행 (API 호출 등)
+        deactivate Handler
+    end
+    deactivate UI

@@ -1,0 +1,29 @@
+sequenceDiagram
+    actor User
+    participant UI as BoardPreview
+    participant Service as PostService
+    participant DB as Supabase DB
+
+    User->>UI: 페이지 접속
+    activate UI
+    UI->>UI: useEffect() 실행
+
+    par 인기 게시글 로딩
+        UI->>Service: listTopLikedPosts(3)
+        Service->>DB: SELECT ... ORDER BY like_count DESC LIMIT 3
+        DB-->>Service: Rows
+        Service-->>UI: setPosts(popular)
+    and 카테고리별 로딩 (Free)
+        UI->>Service: listPostsByCategory("free")
+        Service->>DB: SELECT ... WHERE category='free'
+        DB-->>Service: Rows
+        Service-->>UI: setPosts(free)
+    and 카테고리별 로딩 (QnA)
+        UI->>Service: listPostsByCategory("qna")
+        Service->>DB: SELECT ... WHERE category='qna'
+        DB-->>Service: Rows
+        Service-->>UI: setPosts(qna)
+    end
+
+    UI-->>User: 전체 화면 렌더링
+    deactivate UI

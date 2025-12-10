@@ -1,0 +1,32 @@
+sequenceDiagram
+    actor User
+    participant UI as CommentItem
+    participant CService as CommentService
+    participant AIService as AIService
+    participant DB as Supabase DB
+
+    alt 댓글 수정 (Update)
+        User->>UI: "수정" 클릭 & 새 프롬프트 입력
+        
+        UI->>AIService: updateAIContent(oldContent, prompt)
+        AIService-->>UI: New Content
+
+        UI->>CService: updateCommentContent(commentId, newContent, prompt, userId)
+        activate CService
+        CService->>DB: SELECT author_id ... (검증)
+        CService->>DB: UPDATE comments ...
+        DB-->>CService: Updated Data
+        CService-->>UI: Success
+        deactivate CService
+        
+    else 댓글 삭제 (Delete)
+        User->>UI: "삭제" 클릭
+        
+        UI->>CService: deleteComment(commentId, userId)
+        activate CService
+        CService->>DB: SELECT author_id ... (검증)
+        CService->>DB: DELETE FROM comments WHERE id=...
+        DB-->>CService: Success
+        CService-->>UI: { success: true }
+        deactivate CService
+    end
