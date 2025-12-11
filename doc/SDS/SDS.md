@@ -18,23 +18,23 @@
 ---
 
 ## = Contents =
-1. Introduction ....................................................................................... 5
+1. Introduction
 
-2. Use case analysis ............................................................................. 6
+2. Use case analysis
 
-3. Class diagram .................................................................................. 34
+3. Class diagram
 
-4. Sequence diagram ............................................................................ 45
+4. Sequence diagram
 
-5. State machine diagram .................................................................... 69
+5. State machine diagram
 
-6. User interface prototype ................................................................. 70
+6. User interface prototype
 
-7. Implementation requirements .......................................................... 87
+7. Implementation requirements
 
-8. Glossary ........................................................................................... 89
+8. Glossary
 
-9. References ....................................................................................... 90
+9. References
 
 ---
 
@@ -969,4 +969,5 @@ Performance: 평균 응답시간 1초 이내
 2. **Next.js Documentation**. Available at: https://nextjs.org/docs
 3. **Supabase Documentation**. Available at: https://supabase.com/docs
 4. **Layered Architecture Pattern** - Dev.to. Available at: https://dev.to/yasmine_ddec94f4d4
+
 5. **Common Web Application Architectures** - Microsoft Learn. Available at: https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/
