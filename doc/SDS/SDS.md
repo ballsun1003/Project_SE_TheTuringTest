@@ -1184,155 +1184,104 @@ OpenAI API를 래핑하여 텍스트 생성 기능을 제공합니다.
 ## 4. Sequence diagram
 이 장은 주요 Use case의 실행 흐름을 보여주는 Sequence diagram을 제공한다. 각 다이어그램은 특정 Use case description의 시나리오를 기반으로 객체 간의 상호작용을 시간 순서대로 묘사한다.
 
----
+### 1. 인증 프로세스 (Authentication)
+인증 관련 기능은 시스템 보안의 핵심이며, 회원가입, 로그인, 로그아웃의 세 가지 주요 흐름으로 구성된다.
 
-- Use case #1 : Post Search —
-![p.45](img/SD1.png)
-사용자가 검색창에 분류(제목/내용/글쓴이/댓글)와 키워드를 입력해 SearchBox.onSubmit을 호출합니다.
-SearchBox는 PostService.list로 목록을 요청하고, PostService는 DB.select로 조건에 맞는 게시글을 가져와 다시 SearchBox로 돌려줍니다.
-“다음”을 누르면 같은 흐름이 반복됩니다.
+#### 1.1 회원가입 (Sign Up)
+![SD1-1](img/SD1-1.png)
+**Description:**
+사용자가 입력한 회원 정보와 캡차 토큰을 `UserService`로 전송한다. 서비스는 `Turnstile API`를 통해 캡차 유효성을 검증하고, DB에서 사용자명 중복을 확인한다. 검증이 완료되면 비밀번호를 해싱(bcrypt)하여 DB에 저장하고, 가입된 사용자 객체를 반환한다.
+- **Related Use Cases:** Use case #13 (회원가입), Use case #17 (CAPTCHA)
 
----
+#### 1.2 로그인 (Login)
+![SD1-2](img/SD1-2.png)
+**Description:**
+사용자가 아이디와 비밀번호를 제출하면 `UserService`가 인증을 수행한다. 캡차 검증 후 DB에서 사용자 정보를 조회하여 해시된 비밀번호를 비교한다. 인증 성공 시 마지막 로그인 시간을 갱신하고, 클라이언트(LocalStorage)에 저장할 Access Token을 발급한다.
+- **Related Use Cases:** Use case #14 (로그인), Use case #5 (관리자 로그인)
 
-- Use case #2 : User Search —
-![p.46](img/SD2.png)
-글쓴이 이름(또는 ID)로 검색하면 SearchBox.onSubmit이 실행되고, PostService.list가 글과 댓글을 각각 DB.select로 조회해 결과를 합쳐 보여줍니다.
+#### 1.3 로그아웃 (Logout)
+![SD1-3](img/SD1-3.png)
+**Description:**
+로그아웃은 서버 세션이 아닌 클라이언트 상태 관리를 통해 이루어진다. `AuthHeader`에서 로그아웃 트리거 시 `LocalStorage`에 저장된 Access Token과 사용자 정보를 즉시 삭제하고, 인증 상태(`isLoggedIn`)를 해제한 뒤 홈 화면으로 리다이렉트한다.
+- **Related Use Cases:** Use case #15 (로그아웃)
 
----
+### 2. 게시글 작성 (Post Creation)
+![SD2](img/SD2.png)
+**Description:**
+사용자가 입력한 프롬프트를 기반으로 게시글을 생성하는 과정이다. 먼저 `PostService`가 내용이 비어있는 초기 게시글 레코드를 생성하여 DB에 저장한다. 이후 `AIService`가 OpenAI API를 호출하여 본문을 생성하고, 생성된 텍스트를 `PostService`가 다시 해당 게시글 레코드에 업데이트한다.
+- **Related Use Cases:** Use case #8 (게시글 작성)
 
-- Use case #3 : Post Evaluation —
-![p.47](img/SD3.png)
-사용자가 PostScreen.like/dislike를 누르면 EvalService.evaluate가 평가를 저장합니다.
-이후 NotiService.detectTrigger가 인기글 조건 등을 감지하면 NotiService.sendNoti로 작성자에게 알림을 전송합니다.
+### 3. 게시판 조회 (Board Viewing)
+![SD3](img/SD3.png)
+**Description:**
+`BoardPreview` 컴포넌트가 로드될 때 수행되는 병렬 데이터 로딩 흐름이다. 인기 게시글(`listTopLikedPosts`)과 카테고리별 최신 게시글(`listPostsByCategory`)을 동시에 `PostService`에 요청한다. 서비스는 각각의 조건에 맞는 쿼리를 DB에 전송하여 데이터를 수집하고 화면을 렌더링한다.
+- **Related Use Cases:** Use case #11 (게시글 목록), Use case #1 (게시글 검색)
 
----
+### 4. 반응 및 알림 (Reaction & Notification)
+![SD4](img/SD4.png)
+**Description:**
+사용자가 좋아요/싫어요를 클릭했을 때의 흐름이다. `ReactionService`는 DB의 RPC 함수(`toggle_post_reaction`)를 호출하여 반응 상태를 토글한다. 만약 작성자가 본인이 아닐 경우, `NotificationService`를 호출하여 대상 사용자에게 알림 데이터를 생성(Insert)한다.
+- **Related Use Cases:** Use case #3 (게시글 평가), Use case #4 (알림 전송)
 
-- Use case #4 : 알림 설정 —
-![p.48](img/SD4.png)
-사용자가 마이페이지에서 알림 on/off 같은 프로필 항목을 바꾸면 UserProfileScreen.updateMyProfile가 Auth.reAuth로 재인증을 거친 뒤 Auth.updateProfile을 호출, 설정을 DB.update로 저장합니다.
+### 5. 댓글 작성 (Comment Creation)
+![SD5](img/SD5.png)
+**Description:**
+사용자가 댓글 프롬프트를 입력하면 `AIService`가 먼저 AI 본문을 생성한다. 생성된 본문과 프롬프트 정보를 담아 `CommentService`에 저장을 요청하면, 서비스는 DB에 댓글을 Insert하고 작성자 정보가 포함된 댓글 객체를 반환한다.
+- **Related Use Cases:** *미구현으로 인한 Use Case 삭제 (Logic Only)*
 
----
+### 6. 게시글 상세 조회 (Post Detail View)
+![SD6](img/SD6.png)
+**Description:**
+사용자가 게시글을 클릭하면 `PostService`가 DB에서 해당 게시글의 상세 정보와 작성자 정보를 조인하여 가져온다. 동시에 `increaseViewCount` 메서드를 호출하여 DB의 RPC를 통해 조회수를 비동기로 1 증가시킨다.
+- **Related Use Cases:** Use case #12 (게시글 조회)
 
-- Use case #5 : 알림 목록 보기 —
-![p.49](img/SD5.png)
-알림 아이콘을 누르면 NotiList.getNotis가 DB.select로 알림을 불러와 보여줍니다.
-사용자가 개별 알림을 열면 알림을 읽음으로 업데이트합니다.
+### 7. 게시글 수정 (Post Update)
+![SD7](img/SD7.png)
+**Description:**
+게시글 작성자가 수정 프롬프트를 입력하면 `AIService`가 기존 본문을 바탕으로 내용을 재작성(Rewrite)한다. `PostService`는 반환된 새로운 본문과 수정된 프롬프트를 DB에 업데이트(`updated_at` 갱신)한다.
+- **Related Use Cases:** Use case #9 (게시글 수정)
 
----
+### 8. 게시글 삭제 (Post Delete)
+![SD8](img/SD8.png)
+**Description:**
+게시글 삭제 요청 시 `PostService`가 요청자의 권한(본인 또는 관리자)을 검증한다. 검증에 통과하면 데이터를 물리적으로 삭제하지 않고, `is_deleted` 플래그를 `true`로 설정하는 Soft Delete를 수행하여 목록에서 숨긴다.
+- **Related Use Cases:** Use case #10 (게시글 삭제)
 
-- Use case #6 : 알림 전송 —
-![p.50](img/SD6.png)
-시스템이 평가 이벤트를 감지하면(detectTrigger) 알림을 DB.insert로 저장하고 sendNoti로 발송합니다.
+### 9. 댓글 수정 및 삭제 (Comment Update & Delete)
+![SD9](img/SD9.png)
+**Description:**
+댓글 수정 시 `AIService`를 통해 내용을 재생성하고 DB를 업데이트한다. 댓글 삭제 시에는 `CommentService`가 권한을 확인한 후 DB에서 해당 레코드를 영구 삭제(Hard Delete)한다.
+- **Related Use Cases:** Use case #18 (댓글 수정)
 
----
+### 10. 알림 목록 조회 (Notification List)
+![SD10](img/SD10.png)
+**Description:**
+사용자가 알림 목록을 요청하면 `NotificationService`가 `notifications` 테이블을 조회한다. 이때 `users` 테이블과 조인하여 알림을 보낸 사용자의 닉네임을 함께 가져와 UI에 표시한다.
+- **Related Use Cases:** *미구현으로 인한 Use Case 삭제 (Logic Only)*
 
-- Use case #7 : 관리자 로그인 —
-![p.51](img/SD7.png)
-관리자가 LoginScreen.submit으로 로그인하면 Auth.verifyCAPTCHA 후 Auth.signIn이 DB.select로 계정과 권한을 확인합니다.
+### 11. 사용자 검색 및 통계 (User Profile & Stats)
+![SD11](img/SD11.png)
+**Description:**
+특정 사용자 프로필에 접근할 때의 흐름이다. `PostService`를 통해 해당 사용자가 작성한 게시글 목록을 가져오는 동시에, `UserService`를 통해 총 게시글 수와 받은 좋아요/싫어요 합계를 계산하여 통계 정보를 구성한다.
+- **Related Use Cases:** Use case #2 (사용자 검색), Use case #6 (사용자 정보 조회)
 
----
+### 12. 사용자 정보 수정 (User Profile Update)
+![SD12](img/SD12.png)
+**Description:**
+사용자가 닉네임이나 비밀번호 변경을 요청하면 `UserService`가 수행된다. 루트 계정 보호 로직과 닉네임 중복 검사, 그리고 비밀번호 변경 시 기존 비밀번호 검증(bcrypt)을 거친 후 DB의 사용자 정보를 업데이트한다.
+- **Related Use Cases:** Use case #7 (사용자 정보 수정), Use case #16 (내 정보 관리)
 
-- Use case #8 : 사용자 정보 조회 —
-![p.52](img/SD8.png)
-관리자가 재인증 후 DB.select로 특정 사용자의 정보를 조회합니다.
+### 13. 회원 탈퇴 (Account Withdrawal)
+![SD13](img/SD13.png)
+**Description:**
+회원 탈퇴 시 데이터 무결성을 위해 `UserService`가 연관 데이터를 순차적으로 삭제(Cascade)한다. 댓글, 반응, 알림, 게시글을 먼저 삭제한 후 최종적으로 사용자 계정을 DB에서 제거하고 클라이언트의 토큰을 파기한다.
+- **Related Use Cases:** Use case #16 (내 정보 관리)
 
----
-
-- Use case #9 : 사용자 정보 수정 —
-![p.53](img/SD9.png)
-관리자가 Auth.updateProfile로 사용자 정보를 수정하고, DB.update에 반영합니다.
-
----
-
-- Use case #10 : 게시글 작성 —
-![p.54](img/SD10.png)
-작성 화면에서 submit 시 AI가 본문을 generateText로 생성하고, PostService.createdFromPrompt가 게시글을 DB.insert로 저장합니다.
-
----
-
-- Use case #11 : 게시글 수정 —
-![p.55](img/SD11.png)
-상세 화면에서 수정 프롬프트를 주면 PostService.editWithPrompt가 AI.editText로 본문을 바꾸고 DB.update로 저장합니다.
-
----
-
-- Use case #12 : 게시글 삭제 —
-![p.56](img/SD12.png)
-삭제 요청 시 PostService.delete가 권한을 확인한 뒤 DB.delete를 수행합니다.
-
----
-
-- Use case #13 : 게시글 목록 —
-![p.57](img/SD13.png)
-게시판 진입 시 BoardScreen.render가 PostService.list로 최신순 목록을 DB.select해 보여줍니다.
-
----
-
-- Use case #14 : 게시글 조회 —
-![p.58](img/SD14.png)
-게시글을 클릭하면 PostService.getById가 상세를 가져오고, PostService.increaseView 의미의 DB.update로 조회수를 올립니다.
-
----
-
-- Use case #15 : 회원가입 —
-![p.59](img/SD15.png)
-회원가입 제출 후 Auth.verifyCAPTCHA와 Auth.signUp으로 저장하고, Auth.verifyEmail로 활성화합니다.
-
----
-
-- Use case #16 : 로그인 —
-![p.60](img/SD16.png)
-LoginScreen.submit→Auth.verifyCAPTCHA→Auth.signIn 순이며, 로그인 성공 기록은 DB.insert에 저장합니다.
-
----
-
-- Use case #17 : 로그아웃 —
-![p.61](img/SD17.png)
-사용자가 Auth.signOut으로 세션/토큰을 무효화합니다.
-
----
-
-- Use case #18 : 내 정보 관리 —
-![p.62](img/SD18.png)
-내 정보 화면 진입 시 Auth.reAuth 후, 프로필 변경(Auth.updateProfile), 내가 쓴 글(PostService.list), 댓글/로그인 이력(DB.select)을 옵션으로 수행합니다.
-
----
-
-- Use case #19 : 이메일 인증 —
-![p.63](img/SD19.png)
-인증 코드 입력 시 Auth.verifyEmail이 성공하면 계정을 활성화(DB.update)합니다.
-
----
-
-- Use case #20 : CAPTCHA —
-![p.64](img/SD20.png)
-로그인/회원가입 등에서 사람임을 확인하기 위해 Auth.verifyCAPTCHA를 호출합니다.
-
----
-
-- Use case #21 : 약관 조회 —
-![p.65](img/SD21.png)
-시스템은 약관/정책 내용을 DB.select로 불러와 사용자에게 표시합니다.
-
----
-
-- Use case #22 : Check Text-box —
-![p.66](img/SD22.png)
-PostScreen.addComment 흐름에서 우선 Comment.set으로 길이를 검증합니다.
-적합하면 CommentService.createFromPrompt가 AI.generateText로 문장을 만들고 DB.insert로 저장합니다.
-
----
-
-- Use case #23 : Update Comment —
-![p.67](img/SD23.png)
-수정 프롬프트를 받아 CommentService.editWithPrompt가 AI.editText로 본문을 수정하고 DB.update로 반영합니다.
-
----
-
-- Use case #24 : Delete Comment —
-![p.68](img/SD24.png)
-삭제 요청을 받으면 CommentService.delete가 권한을 확인하고 DB.delete로 댓글을 제거합니다.
-
+### 14. 보안 액션 접근 제어 (Protected Action)
+![SD14](img/SD14.png)
+**Description:**
+UI 컴포넌트 레벨에서 수행되는 보안 로직이다. `ProtectedAction` 컴포넌트는 사용자가 버튼을 클릭했을 때 `LocalStorage`의 토큰 존재 여부를 확인한다. 토큰이 없으면 서버 요청 없이 즉시 로그인 페이지로 리다이렉트하여 비인가 접근을 차단한다.
+- **Related Use Cases:** *All Authenticated Use Cases (UC #3, #8, #9, #10, #16, #18)*
 ---
 
 ## 5. State machine diagram
@@ -1432,6 +1381,7 @@ https://dev.to/yasmine_ddec94f4d4/understanding-the-layered-architecture-pattern
 
 [common webarchitecture explain]  
 https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-applic ation-architectures
+
 
 
 
