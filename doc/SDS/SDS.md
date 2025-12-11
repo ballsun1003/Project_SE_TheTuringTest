@@ -1285,11 +1285,31 @@ UI 컴포넌트 레벨에서 수행되는 보안 로직이다. `ProtectedAction`
 ---
 
 ## 5. State machine diagram
-이 장은 시스템 또는 주요 객체의 상태 변화를 보여주는 State machine diagram을 제공한다. 사용자 인증 상태 변화를 중심으로 설계하였다.  
-![State machine (p.69)](img/StateMachine.png)
-이 도표는 클라이언트(웹 애플리케이션) 의 상태 전이를 기술한다. 본 도표에서는 화면(뷰) 중심으로 상태를 정의 하였다. 이는 “사용자에게 무엇을 보여주고 있는지”를 기준으로 상태를 정의하며, 화면 단위 컴포지트 상태와 네트워크 요청 상태를 분리해 설명한다.  
-![State machine (p.69)](img/AuthStateMachine.png)
-위 다이어그램은 서버에서 인증, 계정에 관련된 처리과정을 나타낸다. 클라이언트에서 발생한 요청은 여기서 처리되고, 그 결과 이벤트(성공/실패)가 다시 클라이언트 SMD 전이 조건으로 반영된다.  
+이 장은 시스템의 주요 객체와 사용자 인터페이스의 상태 변화를 보여주는 State machine diagram을 제공한다. 본 프로젝트는 클라이언트 사이드 렌더링(CSR) 기반의 SPA(Single Page Application) 구조를 가지므로, 클라이언트의 세션 상태(Guest/User)를 중심으로 상태 전이를 설계하였다.
+
+![SMD](img/SMD.png)
+
+### 상세 설명 (State Description)
+
+시스템의 상태는 크게 인증되지 않은 **Guest Session**과 인증된 **User Session**으로 구분되며, 각 세션 내부에서 사용자의 행동에 따라 세부 상태로 전이된다.
+
+#### 1. Guest Session (비로그인 상태)
+사용자가 처음 사이트에 접속하거나 로그아웃한 직후의 상태이다.
+- **App Initialization:** 애플리케이션 로드 시 `AuthProvider`가 `LocalStorage`를 확인하여 토큰 유무를 판별한다. 토큰이 없으면 비로그인 상태로 초기화된다.
+- **Landing Page:** 홈 화면을 조회할 수 있으나, 작성 및 평가 기능은 제한된다.
+- **Sign Up & Login:** 회원가입 및 로그인 화면이다. `UserService`와 `CaptchaService`를 통해 자격 증명과 봇 여부를 검증하며, 성공 시 `User Session`으로 전이된다.
+
+#### 2. User Session (로그인 상태)
+인증에 성공하여 Access Token을 보유한 상태이다. UI의 배경색이 변경되는 등 시각적 피드백이 제공된다.
+- **Main Dashboard:** 로그인 후 진입하는 메인 화면으로, 인기 게시글 조회 및 각 기능으로의 분기점 역할을 한다.
+- **Post Creation Flow:** 게시글 작성 시 `AI Generating` 상태를 거쳐 OpenAI API를 호출하고, DB 저장 후 상세 화면으로 자동 이동한다.
+- **Post Interaction:** 상세 화면에서 좋아요/싫어요(Reaction)나 댓글 작성을 수행하면, 즉시 DB RPC 호출 및 UI 갱신이 이루어진다.
+- **Profile Management:** 내 정보 관리 화면에서 닉네임/비밀번호 수정이 가능하며, '회원 탈퇴' 시 연관 데이터를 모두 삭제하는 Cascade 로직 수행 후 `Guest Session`으로 강제 전환된다.
+
+#### 3. Global Transitions (전역 전이)
+- **Logout:** 사용자가 로그아웃을 요청하면 `LocalStorage`의 토큰을 파기하고 즉시 `Guest Session`의 초기 상태로 복귀한다.
+- **Protected Route Guard:** `Guest Session` 상태에서 인가(Authorization)가 필요한 페이지(예: 글쓰기, 좋아요 클릭)에 접근 시도 시, 자동으로 `Login Screen` 상태로 강제 전이된다.
+ 
 
 ---
 
@@ -1381,6 +1401,7 @@ https://dev.to/yasmine_ddec94f4d4/understanding-the-layered-architecture-pattern
 
 [common webarchitecture explain]  
 https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/common-web-applic ation-architectures
+
 
 
 
