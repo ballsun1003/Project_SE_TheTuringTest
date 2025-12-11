@@ -1,0 +1,34 @@
+# 1. 빌드 단계
+FROM node:22-alpine AS builder
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+ARG NEXT_PUBLIC_SUPABASE_URL=https://yoqwyzpdygvczknhljoy.supabase.co
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlvcXd5enBkeWd2Y3prbmhsam95Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzMDE4NjEsImV4cCI6MjA3ODg3Nzg2MX0.EZmP7Wj-vFgXnvOGx3vxe1MFrgdyQ24S9T1_L5CMatE
+ARG OPENAI_MODEL=gpt-5.1
+ARG NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x4AAAAAACBvfmnDokZA5o1x
+RUN npm run build
+
+# 2. 실행 단계 (가장 중요: Root 권한 제거)
+FROM node:22-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+# 보안 핵심: root가 아닌 'nextjs'라는 제한된 유저로 실행
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# 필요한 파일만 복사
+COPY --from=builder /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# 유저 변경 (이제부터 해커가 들어와도 아무것도 못 함)
+USER nextjs
+
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]

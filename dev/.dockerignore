@@ -1,0 +1,4 @@
+# .dockerignore 파일 내용
+node_modules
+.next
+.git
