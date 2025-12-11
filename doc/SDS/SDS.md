@@ -13,7 +13,7 @@
 | Revision date | Version # | Description | Author |
 |---|---|---|---|
 | 11/07/2025 | 1.0 | first draft | All team member |
-| 11/07/2025 | 2.0 | 완성된 SW에 맞추어 수정 | All team member |
+| 12/11/2025 | 2.0 | 완성된 SW에 맞추어 수정 | All team member |
 
 ---
 
@@ -971,3 +971,4 @@ Performance: 평균 응답시간 1초 이내
 4. **Layered Architecture Pattern** - Dev.to. Available at: https://dev.to/yasmine_ddec94f4d4
 
 5. **Common Web Application Architectures** - Microsoft Learn. Available at: https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/
+
