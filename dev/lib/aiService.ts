@@ -15,14 +15,14 @@ import OpenAI from "openai";
  *    - 새로운 게시글/댓글 본문을 AI가 자동 생성
  *    - 사용자의 입력(prompt)을 기반으로
  *      자연스럽고 매끄러운 문장을 생성하도록 유도
- *    - 모델: gpt-4o-mini
- *    - max_tokens: 600
+ *    - 모델: gpt-5.1
+ *    - max_tokens: 3000
  *
  * 2. updateAIContent(originalContent, prompt)
  *    - 기존 글을 참고하여 AI가 새로운 버전으로 재작성
  *    - 수정 요청(prompt)을 함께 전달하여 변경 방향 반영
- *    - 모델: gpt-4o-mini
- *    - max_tokens: 700
+ *    - 모델: gpt-5.1
+ *    - max_tokens: 4000
  *
  *
  * 보안 및 환경 설정
@@ -50,18 +50,18 @@ const client = new OpenAI({
 // ===============================
 export async function createAIContent(prompt: string): Promise<string> {
   const response = await client.chat.completions.create({
-    model: "gpt-4o-mini",   // 원하는 모델로 변경 가능
+    model: "gpt-5.1",   // 원하는 모델로 변경 가능
     messages: [
       {
         role: "system",
-        content: "너는 글을 잘 쓰는 AI야. 사용자의 프롬프트를 기반으로 자연스럽고 매끄러운 문장을 생성해."
+        content: "너는 온라인 커뮤니티에서 게시글을 대신 써주는 AI야. 사용자가 짧은 키워드나 설명을 주면, 그 내용을 바탕으로 처음부터 끝까지 완성된 하나의 게시글을 작성해. 게시글은 자연스럽고 매끄럽게 이어지도록 쓰고, 기본적으로 산문의 형태를 갖추도록 한다. 기본 분량은 400~600자 정도로 한다. 사용자가 말투를 따로 지정하지 않으면, 일반적인 한국 온라인 커뮤니티에서 쓰는 편한 반말, 친근한 톤으로 작성해. 사용자가 말투를 지정하면 그 말투를 그대로 따른다. 너는 오직 게시글 내용만 출력해야 한다. 인사말, “도움이 되었으면 좋겠다”, “더 수정해줄까?” 같은 말, 질문이나 추가 대화를 유도하는 문장은 절대 쓰지 마라. 한 번의 요청에는 딱 하나의 게시글만 출력하고 끝내. 게시글에는 마크다운 문법(#, *, -, ``` 등)을 사용하지 말고, 일반 텍스트만 사용해. 욕설, 차별, 혐오 표현, 범죄 조장, 개인정보 노출 등 커뮤니티 규칙을 어기는 내용은 작성하지 않는다. 사용자가 그런 내용을 요청하면 순한 표현으로 완화하거나 정중하게 거절한다. 위의 규칙을 항상 최우선으로 지키면서, 사용자의 프롬프트 의도에 최대한 맞는 게시글을 작성해.",
       },
       {
         role: "user",
         content: prompt,
       },
     ],
-    max_tokens: 600,
+    max_completion_tokens: 3000,
   });
 
   return response.choices[0].message.content || "";
@@ -76,12 +76,12 @@ export async function updateAIContent(
 ): Promise<string> {
 
   const response = await client.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-5.1",
     messages: [
       {
         role: "system",
         content:
-          "너는 글을 자연스럽게 재작성하는 AI야. 기존 내용을 참고하고, 사용자의 요청에 맞게 글을 다시 작성해."
+          "너는 온라인 커뮤니티에서 이미 작성된 게시글을 수정하는 AI야. 원본 글과 수정 요청이 입력으로 들어오면 그 내용을 바탕으로 처음부터 끝까지 완성된 하나의 게시글을 작성해. 게시글은 자연스럽고 매끄럽게 이어지도록 쓰고, 기본적으로 산문의 형태를 갖추도록 한다. 기본 분량은 400~600자 정도로 한다. 사용자가 말투를 따로 지정하지 않으면, 일반적인 한국 온라인 커뮤니티에서 쓰는 편한 반말, 친근한 톤으로 작성해. 사용자가 말투를 지정하면 그 말투를 그대로 따른다. 너는 오직 게시글 내용만 출력해야 한다. 인사말, “도움이 되었으면 좋겠다”, “더 수정해줄까?” 같은 말, 질문이나 추가 대화를 유도하는 문장은 절대 쓰지 마라. 한 번의 요청에는 딱 하나의 게시글만 출력하고 끝내. 게시글에는 마크다운 문법(#, *, -, ``` 등)을 사용하지 말고, 일반 텍스트만 사용해. 욕설, 차별, 혐오 표현, 범죄 조장, 개인정보 노출 등 커뮤니티 규칙을 어기는 내용은 작성하지 않는다. 사용자가 그런 내용을 요청하면 순한 표현으로 완화하거나 정중하게 거절한다. 위의 규칙을 항상 최우선으로 지키면서, 사용자의 프롬프트 의도에 최대한 맞는 게시글을 작성해."
       },
       {
         role: "user",
@@ -89,7 +89,7 @@ export async function updateAIContent(
           `원본 글:\n${originalContent}\n\n수정 요청:\n${prompt}`
       },
     ],
-    max_tokens: 700,
+    max_completion_tokens: 4000,
   });
 
   return response.choices[0].message.content || "";

@@ -1,0 +1,32 @@
+sequenceDiagram
+    actor User
+    participant UI as PostScreen
+    participant RService as ReactionService
+    participant NService as NotificationService
+    participant DB as Supabase DB
+
+    User->>UI: "좋아요(Like)" 클릭
+    UI->>RService: toggleReaction(postId, userId, "like")
+    
+    activate RService
+    %% 1. 작성자 확인
+    RService->>DB: SELECT author_id FROM posts
+    DB-->>RService: authorId (User B)
+
+    %% 2. 반응 토글 (RPC)
+    RService->>DB: RPC "toggle_post_reaction"
+    DB-->>RService: { like_count: 10, user_reaction: "like" }
+
+    %% 3. 알림 생성 (본인이 아닐 경우)
+    opt User != Author
+        RService->>NService: createNotification(UserB, UserA, postId, "like")
+        activate NService
+        NService->>DB: INSERT INTO notifications
+        DB-->>NService: Success
+        deactivate NService
+    end
+
+    RService-->>UI: { likeCount: 10, userReaction: "like" }
+    deactivate RService
+
+    UI->>UI: 숫자 업데이트 및 버튼 하이라이트

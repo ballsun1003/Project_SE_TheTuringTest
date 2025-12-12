@@ -1,0 +1,24 @@
+sequenceDiagram
+    actor User
+    participant UI as PostScreen
+    participant PService as PostService
+    participant DB as Supabase DB
+
+    User->>UI: 게시글 클릭
+    activate UI
+    
+    par 데이터 조회 및 조회수 증가
+        %% 1. 상세 정보 조회
+        UI->>PService: getPostById(postId)
+        PService->>DB: SELECT * ... JOIN users
+        DB-->>PService: Post Data (is_deleted=false)
+        PService-->>UI: Post Object
+        
+        %% 2. 조회수 증가 (Fire & Forget)
+        UI->>PService: increaseViewCount(postId)
+        PService->>DB: RPC "increment_post_view"
+        DB-->>PService: Updated Count
+    end
+
+    UI-->>User: 상세 화면 표시 (본문, 좋아요 수, 댓글 등)
+    deactivate UI

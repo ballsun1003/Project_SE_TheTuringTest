@@ -1,0 +1,25 @@
+sequenceDiagram
+    actor User
+    participant UI as UserProfileScreen
+    participant PService as PostService
+    participant UService as UserService
+    participant DB as Supabase DB
+
+    User->>UI: 특정 유저 닉네임 클릭 (또는 마이페이지)
+    activate UI
+
+    par 게시글 목록 조회
+        UI->>PService: listPostsByUser(targetUserId)
+        PService->>DB: SELECT * FROM posts WHERE author_id=...
+        DB-->>PService: Post Rows
+        PService-->>UI: Post[]
+    and 사용자 통계 조회
+        UI->>UService: getUserStats(targetUserId)
+        UService->>DB: SELECT like_count, dislike_count FROM posts...
+        DB-->>UService: Rows
+        UService->>UService: 합계 계산 (Total Likes/Dislikes)
+        UService-->>UI: { postCount, totalLikes, totalDislikes }
+    end
+
+    UI-->>User: 유저 정보, 통계, 작성 글 목록 표시
+    deactivate UI

@@ -1,0 +1,35 @@
+sequenceDiagram
+    actor User
+    participant UI as PostCreateScreen
+    participant PService as PostService
+    participant AIService as AIService
+    participant OpenAI as OpenAI API
+    participant DB as Supabase DB
+
+    User->>UI: 제목, 프롬프트 입력 & "생성" 클릭
+    
+    %% 1. 껍데기 게시글 생성
+    UI->>PService: createPost(authorId, title, prompt, category)
+    activate PService
+    PService->>DB: INSERT INTO posts (content=null/empty)
+    DB-->>PService: Created Post (ID: 101)
+    PService-->>UI: Post Object
+    deactivate PService
+
+    %% 2. AI 본문 생성
+    UI->>AIService: createAIContent(prompt)
+    activate AIService
+    AIService->>OpenAI: Completion Request
+    OpenAI-->>AIService: Generated Text ("...Hello World...")
+    AIService-->>UI: Content String
+    deactivate AIService
+
+    %% 3. 본문 업데이트
+    UI->>PService: updatePostContent(101, content)
+    activate PService
+    PService->>DB: UPDATE posts SET content="..." WHERE id=101
+    DB-->>PService: Updated Post
+    PService-->>UI: Success
+    deactivate PService
+
+    UI-->>User: 상세 페이지 리다이렉트

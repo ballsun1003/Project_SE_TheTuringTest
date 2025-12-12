@@ -1,0 +1,152 @@
+stateDiagram-v2
+    direction TB
+
+    %% ============================================================
+    %% 1. 초기화 및 게스트 세션 (Guest Session)
+    %% ============================================================
+    state "Guest Session (Unauthenticated)" as Guest {
+        direction LR
+        [*] --> AppInit : URL Access
+        
+        state "App Initialization" as AppInit
+        note right of AppInit
+            AuthProvider checks localStorage
+            Sets 'isLoggedIn = false'
+            Sets BG color (Slate)
+        end note
+
+        state "Landing Page" as Landing
+        state "Login Screen" as Login
+        state "Sign Up Screen" as SignUp
+
+        AppInit --> Landing : Render Home
+        Landing --> Login : Click 'Login'
+        Landing --> SignUp : Click 'Sign Up'
+        
+        state "Registration Processing" as RegProcess
+        note right of RegProcess
+            Verify Turnstile
+            Check Duplicate
+            Hash Password
+        end note
+        
+        SignUp --> RegProcess : Submit Form
+        RegProcess --> Login : Success (Redirect)
+        RegProcess --> SignUp : Fail (Show Error)
+
+        state "Auth Processing" as AuthProcess
+        note right of AuthProcess
+            Verify Turnstile
+            Verify Password
+            Get AccessToken
+        end note
+
+        Login --> AuthProcess : Submit Credentials
+        AuthProcess --> Login : Fail (Show Error)
+    }
+
+    %% ============================================================
+    %% 2. 유저 세션 (Authenticated Session)
+    %% ============================================================
+    state "User Session (Authenticated)" as User {
+        direction TB
+        
+        state "Auth Success" as AuthSuccess
+        note right of AuthSuccess
+            Set 'isLoggedIn = true'
+            Set BG color (Amber)
+            Save Token to LocalStorage
+        end note
+
+        state "Main Dashboard" as Dashboard
+        state "Board View (Category)" as BoardList
+        state "User Profile View" as Profile
+
+        %% --- Post Creation Flow ---
+        state "Post Creation View" as PostCreate
+        state "AI Generating Content" as AI_Gen_Post
+        note right of AI_Gen_Post
+            Call OpenAI API
+            Generate Text
+        end note
+
+        state "Saving Post" as DB_Save_Post
+
+        %% --- Post Detail & Interaction Flow ---
+        state "Post Detail View" as PostDetail
+        state "Reaction Processing" as Reacting
+        note right of Reacting
+            RPC Call (Toggle)
+            Create Notification
+        end note
+
+        state "Comment Processing" as Commenting
+        note right of Commenting
+            AI Generate Comment
+            Insert DB
+        end note
+
+        %% --- Post Edit Flow ---
+        state "Post Edit View" as PostEdit
+        state "AI Rewriting Content" as AI_Edit_Post
+        note right of AI_Edit_Post
+            Call OpenAI API
+            Rewrite Text
+        end note
+
+        state "Updating Post" as DB_Update_Post
+
+        %% --- Account Management ---
+        state "Profile Updating" as ProfileUpdate
+        state "Account Deleting" as AccDelete
+        note right of AccDelete
+            Cascade Delete All Data
+            (Posts, Comments, Noti, etc.)
+        end note
+
+        %% Transitions inside User Session
+        AuthSuccess --> Dashboard : Redirect
+        Dashboard --> BoardList : Click Category
+        Dashboard --> PostCreate : Click Write
+        Dashboard --> PostDetail : Click Post Title
+        Dashboard --> Profile : Click My Page
+
+        %% Create Post
+        PostCreate --> AI_Gen_Post : Submit Prompt
+        AI_Gen_Post --> DB_Save_Post : Success
+        DB_Save_Post --> PostDetail : Redirect
+
+        %% View & Interact
+        PostDetail --> Reacting : Click Like/Dislike
+        Reacting --> PostDetail : Update Counts
+        PostDetail --> Commenting : Write Comment
+        Commenting --> PostDetail : Update List
+        PostDetail --> PostEdit : Click Edit (Author Only)
+        PostDetail --> Dashboard : Click Delete (Soft Delete)
+
+        %% Edit Post
+        PostEdit --> AI_Edit_Post : Submit New Prompt
+        AI_Edit_Post --> DB_Update_Post : Success
+        DB_Update_Post --> PostDetail : Redirect
+
+        %% Profile
+        Profile --> ProfileUpdate : Update Info
+        ProfileUpdate --> Profile : Success
+        Profile --> AccDelete : Click Withdrawal
+    }
+
+    %% ============================================================
+    %% 3. Global Transitions (세션 간 전환)
+    %% ============================================================
+    
+    AuthProcess --> AuthSuccess : Success
+    
+    %% Logout
+    Dashboard --> Guest : Click Logout (Clear Storage)
+    Profile --> Guest : Click Logout
+    
+    %% Account Withdrawal
+    AccDelete --> Guest : Success (Clear Storage)
+
+    %% Protected Route Redirect
+    Guest --> Login : Try Accessing Protected Route

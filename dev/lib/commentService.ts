@@ -195,15 +195,46 @@ export async function deleteComment(commentId: string, userId: string) {
   if (error) return { error: "Failed to delete comment." };
   return { success: true };
 }
-// 유저따라 댓글 리스트 불러오기
+// // 유저따라 댓글 리스트 불러오기
+// export async function listCommentsByUser(userId: string) {
+//   const { data, error } = await supabase
+//     .from("comments")
+//     .select("*, post:post_id(title)")
+//     .eq("author_id", userId)
+//     .order("created_at", { ascending: false });
+
+//   if (error || !data) return { error: "Failed to load comments by user" };
+
+//   return { comments: data };
+// }
+// 유저따라 댓글 리스트 불러오기 (삭제된 게시글 제외 버전)
 export async function listCommentsByUser(userId: string) {
   const { data, error } = await supabase
     .from("comments")
-    .select("*, post:post_id(title)")
+    .select(
+      `
+        *,
+        post:post_id (
+          id,
+          title,
+          is_deleted
+        )
+      `
+    )
     .eq("author_id", userId)
     .order("created_at", { ascending: false });
 
-  if (error || !data) return { error: "Failed to load comments by user" };
+  if (error || !data) {
+    console.error("listCommentsByUser error:", error);
+    return { comments: [], error: "Failed to load comments by user" };
+  }
 
-  return { comments: data };
+  // 🔥 1차 필터: post가 아예 없는 경우 제거 (하드 삭제된 게시글)
+  // 🔥 2차 필터: is_deleted = true 인 게시글의 댓글 제거 (소프트 삭제된 게시글)
+  const filtered = data.filter(
+    (c: any) => c.post && c.post.is_deleted !== true
+  );
+
+  return { comments: filtered };
 }
+

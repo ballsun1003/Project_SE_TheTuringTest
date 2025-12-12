@@ -1,0 +1,28 @@
+sequenceDiagram
+    actor User
+    participant UI as NotiList
+    participant NService as NotificationService
+    participant DB as Supabase DB
+
+    User->>UI: 알림 아이콘 클릭 (목록 열기)
+    activate UI
+    
+    %% 1. 목록 조회
+    UI->>NService: listNotificationsByUser(userId)
+    activate NService
+    NService->>DB: SELECT ... JOIN users (from_user)
+    DB-->>NService: Notification Rows (with username)
+    NService-->>UI: NotificationWithNames[]
+    deactivate NService
+    
+    UI-->>User: 알림 목록 표시 (예: "A님이 좋아요를...")
+
+    %% 2. 전체 삭제 (옵션)
+    opt "모두 지우기" 클릭
+        User->>UI: "Clear All" 클릭
+        UI->>NService: deleteAllNotificationsByUser(userId)
+        NService->>DB: DELETE FROM notifications WHERE to_user_id=...
+        DB-->>NService: Success
+        UI-->>User: 빈 목록 표시
+    end
+    deactivate UI

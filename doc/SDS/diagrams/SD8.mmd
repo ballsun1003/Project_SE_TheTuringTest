@@ -1,0 +1,29 @@
+sequenceDiagram
+    actor User
+    participant UI as PostScreen
+    participant PService as PostService
+    participant DB as Supabase DB
+
+    User->>UI: "삭제" 버튼 클릭
+    
+    %% 클라이언트 측 보호 (ProtectedAction)
+    UI->>UI: 로그인 여부 확인
+
+    UI->>PService: deletePost(postId, userId)
+    activate PService
+    
+    %% 1. 권한 검증 (Service 내부)
+    PService->>DB: SELECT author_id FROM posts
+    DB-->>PService: authorId
+    
+    alt 본인 또는 ROOT 계정
+        %% 2. Soft Delete 수행
+        PService->>DB: UPDATE posts SET is_deleted=true
+        DB-->>PService: Success
+        PService-->>UI: { success: true }
+        UI->>User: 목록 화면으로 이동
+    else 권한 없음
+        PService-->>UI: Error "Not authorized"
+        UI-->>User: 경고 메시지 표시
+    end
+    deactivate PService

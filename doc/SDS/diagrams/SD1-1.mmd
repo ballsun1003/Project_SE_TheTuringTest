@@ -1,0 +1,36 @@
+sequenceDiagram
+    actor User
+    participant UI as SignUpPage
+    participant Captcha as Captcha Component
+    participant Service as UserService
+    participant Turnstile as Turnstile API
+    participant DB as Supabase DB
+
+    User->>UI: 이메일, 비밀번호, 닉네임 입력
+    User->>Captcha: 캡차 체크
+    Captcha->>Turnstile: 검증 요청
+    Turnstile-->>Captcha: Token 발급
+    Captcha-->>UI: Token 전달
+    
+    User->>UI: "회원가입" 클릭
+    UI->>Service: signUpUser(username, password, token)
+    
+    activate Service
+    Service->>Service: verifyTurnstile(token)
+    
+    alt 캡차 검증 실패
+        Service-->>UI: Error "Captcha failed"
+    else 캡차 검증 성공
+        Service->>DB: Select user (Check Duplicate)
+        
+        alt 중복 존재
+            DB-->>Service: User Found
+            Service-->>UI: Error "Username exists"
+        else 중복 없음
+            Service->>Service: bcrypt.hash(password)
+            Service->>DB: INSERT INTO users
+            DB-->>Service: User Data
+            Service-->>UI: Success (User Object)
+        end
+    end
+    deactivate Service

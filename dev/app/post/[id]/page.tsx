@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import HomeButton from "@/components/homeButton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -33,16 +33,16 @@ import { useRouter } from "next/navigation";
  * 주요 기능
  * ------------------------------------------------------
  * 1️⃣ 좋아요/싫어요(toggle)
- *   - handleReaction()
- *   - 현재 상태 기반으로 자동 취소/변경 처리
+ * - handleReaction()
+ * - 현재 상태 기반으로 자동 취소/변경 처리
  *
  * 2️⃣ 댓글 CRUD
- *   - handleCreateComment(): AI 프롬프트 기반 댓글 생성
- *   - handleUpdateComment(): AI로 댓글 재작성
- *   - handleDeleteComment(): 댓글 삭제 (권한 검증 포함)
+ * - handleCreateComment(): AI 프롬프트 기반 댓글 생성
+ * - handleUpdateComment(): AI로 댓글 재작성
+ * - handleDeleteComment(): 댓글 삭제 (권한 검증 포함)
  *
  * 3️⃣ 게시글 삭제
- *   - handleDeletePost(): 삭제 후 게시판 목록 이동
+ * - handleDeletePost(): 삭제 후 게시판 목록 이동
  *
  * UI / UX 구성
  * ------------------------------------------------------
@@ -71,9 +71,11 @@ import { useRouter } from "next/navigation";
 
 const ROOT_ID = "00000000-0000-0000-0000-000000000001";
 
-export default function PostDetailPage({ params }: { params: { id: string } }) {
+export default function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const id = params.id;
+  
+  // Next.js 15: params는 Promise이므로 React.use()로 언랩(unwrap)해야 합니다.
+  const { id } = use(params);
 
   const [post, setPost] = useState<any>(null);
   const [reaction, setReaction] = useState<"like" | "dislike" | null>(null);
@@ -88,11 +90,13 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
   const isRoot = userId === ROOT_ID;
 
   useEffect(() => {
+    // id가 로드된 후에 실행되어야 하므로 useEffect 내부 로직은 그대로 유지해도 되지만,
+    // id 값 자체가 use(params)를 통해 확보된 상태에서 실행됩니다.
     loadPost();
     increaseView();
     loadUserReaction();
     loadComments();
-  }, []);
+  }, [id]); // id가 변경될 때마다 재실행되도록 의존성 배열에 id 추가 권장
 
   async function loadPost() {
     const res = await fetch("/api/posts/get", {
@@ -125,40 +129,39 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
     const json = await res.json();
     if (json.reaction) setReaction(json.reaction);
   }
-
- 
+  
   async function handleReaction(type: "like" | "dislike") {
-  if (!userId) return alert("로그인이 필요합니다.");
+    if (!userId) return alert("로그인이 필요합니다.");
 
-  const res = await fetch("/api/reactions/toggle", {
-    method: "POST",
-    body: JSON.stringify({ postId: id, userId, type }),
-  });
+    const res = await fetch("/api/reactions/toggle", {
+      method: "POST",
+      body: JSON.stringify({ postId: id, userId, type }),
+    });
 
-  const json = await res.json();
-  if (json.error) return alert(json.error);
+    const json = await res.json();
+    if (json.error) return alert(json.error);
 
-  setPost((prev: any) => ({
-    ...prev,
-    likeCount:
-      json.likeCount ??
-      json.like_count ??
-      (prev?.likeCount ?? prev?.like_count ?? 0),
-    dislikeCount:
-      json.dislikeCount ??
-      json.dislike_count ??
-      (prev?.dislikeCount ?? prev?.dislike_count ?? 0),
-  }));
+    setPost((prev: any) => ({
+      ...prev,
+      likeCount:
+        json.likeCount ??
+        json.like_count ??
+        (prev?.likeCount ?? prev?.like_count ?? 0),
+      dislikeCount:
+        json.dislikeCount ??
+        json.dislike_count ??
+        (prev?.dislikeCount ?? prev?.dislike_count ?? 0),
+    }));
 
-  // 서버가 userReaction 안 보내면, 이전 상태 기준으로 토글
-  setReaction(
-    json.userReaction !== undefined
-      ? json.userReaction
-      : reaction === type
-      ? null
-      : type
-  );
-}
+    // 서버가 userReaction 안 보내면, 이전 상태 기준으로 토글
+    setReaction(
+      json.userReaction !== undefined
+        ? json.userReaction
+        : reaction === type
+        ? null
+        : type
+    );
+  }
 
 
   async function loadComments() {
@@ -245,7 +248,7 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
   if (!post) return <div>로딩중...</div>;
 
   return (
-    <main className="min-h-screen bg-gray-50 text-gray-800">
+    <main className="min-h-screen text-gray-800">
       <div className="flex items-center justify-between px-4 py-4">
         <HomeButton />
         <Link href="/board/all" className="text-gray-700 hover:underline">
@@ -395,4 +398,3 @@ export default function PostDetailPage({ params }: { params: { id: string } }) {
     </main>
   );
 }
-

@@ -80,7 +80,7 @@ export default function SignPage() {
   };
 
   return (
-    <main className="min-h-screen flex flex-col bg-gray-50">
+    <main className="min-h-screen flex flex-col">
       <div className="p-4">
         <HomeButton className="mr-2 text-gray-900" />
       </div>

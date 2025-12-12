@@ -1,0 +1,31 @@
+sequenceDiagram
+    actor User
+    participant UI as PostEditScreen
+    participant PService as PostService
+    participant AIService as AIService
+    participant OpenAI as OpenAI API
+    participant DB as Supabase DB
+
+    User->>UI: "수정" 버튼 클릭
+    UI->>PService: getPostById(postId) (기본 정보 로드)
+    PService-->>UI: Post Data
+    
+    User->>UI: 새로운 프롬프트 입력 & "수정 완료" 클릭
+
+    %% 1. AI에게 수정 요청
+    UI->>AIService: updateAIContent(oldContent, newPrompt)
+    activate AIService
+    AIService->>OpenAI: Request Rewrite
+    OpenAI-->>AIService: Revised Content
+    AIService-->>UI: New Content String
+    deactivate AIService
+
+    %% 2. DB 업데이트
+    UI->>PService: updatePostContent(postId, newContent, newPrompt)
+    activate PService
+    PService->>DB: UPDATE posts SET ... updated_at=now()
+    DB-->>PService: Success
+    PService-->>UI: Updated Post Object
+    deactivate PService
+
+    UI-->>User: 상세 페이지로 이동 (수정됨)

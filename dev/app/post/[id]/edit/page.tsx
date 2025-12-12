@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import type { BoardCategory } from "@/lib/entities/Post"; // 타입 불러오기!
 
@@ -56,9 +56,11 @@ import type { BoardCategory } from "@/lib/entities/Post"; // 타입 불러오기
  */
 
 
-export default function EditPostPage({ params }: { params: { id: string } }) {
+export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  const id = params.id;
+
+  // 3. use() 훅을 사용하여 params 언랩(Unwrap)
+  const { id } = use(params);
 
   const [post, setPost] = useState<any>(null);
   const [title, setTitle] = useState("");

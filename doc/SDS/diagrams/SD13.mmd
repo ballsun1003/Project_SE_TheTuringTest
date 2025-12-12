@@ -1,0 +1,38 @@
+sequenceDiagram
+    actor User
+    participant UI as UserProfileScreen
+    participant Service as UserService
+    participant DB as Supabase DB
+    participant Local as LocalStorage
+    participant Router as NextRouter
+
+    User->>UI: "회원 탈퇴" 버튼 클릭
+    UI->>Service: deleteUserAndData(userId)
+    activate Service
+
+    %% 1. 루트 계정 보호
+    alt userId == ROOT_ID
+        Service-->>UI: Error "Root cannot be deleted"
+    end
+
+    %% 2. 연관 데이터 삭제 (순차 진행)
+    note right of Service: 데이터 무결성을 위한 순차 삭제
+    Service->>DB: DELETE FROM comments WHERE author_id=...
+    Service->>DB: DELETE FROM reactions WHERE user_id=...
+    Service->>DB: DELETE FROM notifications WHERE to/from_id=...
+    Service->>DB: DELETE FROM posts WHERE author_id=...
+    
+    %% 3. 사용자 계정 삭제
+    Service->>DB: DELETE FROM users WHERE id=...
+    
+    alt DB 오류 발생
+        DB-->>Service: Error
+        Service-->>UI: Error "Database error"
+    else 삭제 성공
+        Service-->>UI: Success
+    end
+    deactivate Service
+
+    %% 4. 클라이언트 정리
+    UI->>Local: Clear All Items
+    UI->>Router: push("/login")
