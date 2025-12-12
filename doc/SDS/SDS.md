@@ -52,14 +52,22 @@ References - 허태규
 ---
 
 ## 1. Introduction
-본 문서는 "The Turing Test" 프로젝트의 Software Design Specification(SDS)이다. 이 프로젝트는 "죽은 인터넷 이론"에서 영감을 받아, AI가 생성한 콘텐츠로만 구성된 온라인 커뮤니티를 구축하여 이른바 “죽은 인터넷”을 구현한다. 나아가, 게시글 및 댓글의 생성 방식, 인증된 사용자와 인증되지 않은 사용자의 UI/UX적 차별 등을 통해 생성된 콘텐츠의 기반이 모두 실제 사람임을 표현하여 커뮤니티 사용자에게 이색적인 경험을 제공하는 것을 목표로 한다.
+본 문서는 “The Turing Test” 프로젝트의 소프트웨어 상세 설계 명세서(SDS)로서, 앞서 정의된 요구사항 정의서(SRS)의 기능적·비기능적 요구사항을 실제 구현 가능한 수준의 기술적 설계로 구체화하는 데 목적이 있다. 본 문서는 시스템 아키텍처, 데이터 모델, 프로세스 흐름 및 UI 설계를 포괄하며, 개발 단계에서의 명확한 가이드라인 제공과 산출물 간의 정합성 확보를 최우선으로 작성되었다.
 
-본 문서는 프로젝트의 Software Requirements Specification(SRS)에 명시된 기능적 요구사항들을 구현하기 위해 시스템을 다양한 관점에서 설계한다. Use case diagram과 Use case description은 사용자 관점에서 시스템이 제공하는 기능을 명확히 하고, Class diagram은 시스템의 정적 구조와 클래스 간의 관계를 보여준다. Sequence diagram과 State machine diagram은 시스템의 동적 행동과 상태 변화를 묘사한다. User interface prototype은 사용자가 시스템과 상호작용하는 화면의 예상 모습을 제시한다.
+“The Turing Test”는 죽은 ‘죽은 인터넷 이론(Dead Internet Theory)’을 모티프로 하여, 커뮤니티 내 모든 콘텐츠가 AI 모델에 의해 생성되는 웹 기반 플랫폼이다. 본 시스템의 핵심 메커니즘은 다음과 같다.
 
-본 문서 작성 시 가장 중요하게 고려된 점은 SRS 요구사항의 충실한 반영과 다이어그램 간의 일관성 유지이다. 각 다이어그램은 SRS에 명시된 기능을 기반으로 하며, 다이어그램 간의 모순이 없도록 주의 깊게 작성되었다. 특히 Use case description은 Sequence diagram 설계의 주요 기반이 된다.
+• AI 기반 콘텐츠 생성 : 게시글과 댓글을 포함한 모든 콘텐츠는 사용자의 프롬프트 입력을 기반으로 LLM(Large Language Model)을 통해 실시간으로 생성된다.
+• 인간 인증 프로세스 : 사용자는 CAPTCHA 등의 튜링 테스트 기법을 통과해야만 콘텐츠 생성 권한을 획득하며, 이는 시스템 내에서 ‘인간의 의도’가 개입되었음을 증명하는 핵심 로직으로 작용한다.
+• UI/UX 차별화 : 로그인 여부에 따라 인터페이스를 동적으로 변화시켜, 사용자로 하여금 콘텐츠의 생성 주체에 대한 인식을 제고하도록 설계되었다.
 
-"The Turing Test" 시스템은 웹 기반 애플리케이션으로 개발될 예정이며, 사용자는 회원가입 및 로그인을 통해 커뮤니티 활동에 참여한다. 모든 게시글과 댓글 내용은 사용자가 입력한 프롬프트를 기반으로 AI 모델에 의해 생성되며, 이 과정에서 사용자는 CAPTCHA 등을 통해 인간임을 증명해야 한다.
+본 문서는 시스템의 정적 구조와 동적 행위를 다각도로 분석하기 위해 다음과 같은 UML 모델링 및 설계 도구를 활용하였다.
 
+• Use Case Description & Diagram : 사용자 시나리오를 기반으로 시스템의 기능을 명세하며, 이는 Sequence Diagram 작성의 기준이 된다.
+• Class Diagram : 시스템의 데이터 구조와 객체 간의 관계를 정의하여 DB 설계 및 백엔드 로직의 기초를 제공한다.
+• Sequence & State Machine Diagram : CAPTCHA 인증과 게시글 생성 등 여러 프로세스와 객체의 상태 변화를 도식화하여 시스템의 동적 흐름을 명확히 한다.
+• UI Prototype : 사용자와 시스템 간의 상호작용을 시각화하여 UX 요구사항을 구체화한다.
+
+본 설계 문서는 SRS 요구사항과의 추적성(Tracebility)을 유지하고, 각 다이어그램 간의 논리적 무결성을 검증하는 데 중점을 두었다.
 ---
 
 ## 2. Use case analysis
@@ -971,4 +979,5 @@ Performance: 평균 응답시간 1초 이내
 4. **Layered Architecture Pattern** - Dev.to. Available at: https://dev.to/yasmine_ddec94f4d4
 
 5. **Common Web Application Architectures** - Microsoft Learn. Available at: https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/
+
 
