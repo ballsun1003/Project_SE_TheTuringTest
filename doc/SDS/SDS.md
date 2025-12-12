@@ -68,6 +68,7 @@ References - 허태규
 • UI Prototype : 사용자와 시스템 간의 상호작용을 시각화하여 UX 요구사항을 구체화한다.
 
 본 설계 문서는 SRS 요구사항과의 추적성(Tracebility)을 유지하고, 각 다이어그램 간의 논리적 무결성을 검증하는 데 중점을 두었다.
+
 ---
 
 ## 2. Use case analysis
@@ -979,5 +980,6 @@ Performance: 평균 응답시간 1초 이내
 4. **Layered Architecture Pattern** - Dev.to. Available at: https://dev.to/yasmine_ddec94f4d4
 
 5. **Common Web Application Architectures** - Microsoft Learn. Available at: https://learn.microsoft.com/en-us/dotnet/architecture/modern-web-apps-azure/
+
 
 
